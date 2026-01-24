@@ -8,7 +8,7 @@ class ServiceLayerTest {
 
     @Test
     fun `plugin xml declares CodebuffProjectService`() {
-        val content = loadPluginXml()
+        val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("CodebuffProjectService"),
             "plugin.xml should declare CodebuffProjectService"
@@ -21,7 +21,7 @@ class ServiceLayerTest {
 
     @Test
     fun `plugin xml declares SessionManager service`() {
-        val content = loadPluginXml()
+        val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("SessionManager"),
             "plugin.xml should declare SessionManager"
@@ -56,9 +56,5 @@ class ServiceLayerTest {
         assertTrue(content.contains("fun disconnect"), "BackendClient should have disconnect method")
         assertTrue(content.contains("fun sendMessage"), "BackendClient should have sendMessage method")
         assertTrue(content.contains("fun cancel"), "BackendClient should have cancel method")
-    }
-
-    private fun loadPluginXml(): String {
-        return File("src/main/resources/META-INF/plugin.xml").readText()
     }
 }

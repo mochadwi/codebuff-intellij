@@ -11,4 +11,8 @@ class OpenToolWindowAction : AnAction() {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Codebuff")
         toolWindow?.show()
     }
+
+    override fun update(e: AnActionEvent) {
+        e.presentation.isEnabledAndVisible = e.project != null
+    }
 }

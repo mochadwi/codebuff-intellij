@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.codebuff.intellij.BuildConfigurationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-01-24T10:23:20" hostname="8b8d21cc78d4" time="0.011">
+<testsuite name="com.codebuff.intellij.BuildConfigurationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-01-24T10:34:18" hostname="2aaf5bf454bb" time="0.032">
   <properties/>
-  <testcase name="settings gradle kts configures project name()" classname="com.codebuff.intellij.BuildConfigurationTest" time="0.008"/>
-  <testcase name="build gradle kts exists and is valid()" classname="com.codebuff.intellij.BuildConfigurationTest" time="0.0"/>
-  <testcase name="required dependencies are configured()" classname="com.codebuff.intellij.BuildConfigurationTest" time="0.0"/>
-  <testcase name="gradle properties has correct JVM target()" classname="com.codebuff.intellij.BuildConfigurationTest" time="0.0"/>
+  <testcase name="settings gradle kts configures project name()" classname="com.codebuff.intellij.BuildConfigurationTest" time="0.029"/>
+  <testcase name="build gradle kts exists and is valid()" classname="com.codebuff.intellij.BuildConfigurationTest" time="0.001"/>
+  <testcase name="required dependencies are configured()" classname="com.codebuff.intellij.BuildConfigurationTest" time="0.001"/>
+  <testcase name="gradle properties has correct JVM target()" classname="com.codebuff.intellij.BuildConfigurationTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

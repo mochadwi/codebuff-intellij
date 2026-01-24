@@ -5,6 +5,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 @Service(Service.Level.PROJECT)
 class SessionManager(private val project: Project) : Disposable {
@@ -36,7 +37,7 @@ class SessionManager(private val project: Project) : Disposable {
 data class Session(
     val id: String,
     val projectPath: String,
-    val messages: MutableList<Message> = mutableListOf()
+    val messages: CopyOnWriteArrayList<Message> = CopyOnWriteArrayList()
 )
 
 data class Message(

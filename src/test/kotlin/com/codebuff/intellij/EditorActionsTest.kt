@@ -8,7 +8,7 @@ class EditorActionsTest {
 
     @Test
     fun `plugin xml declares OpenToolWindow action`() {
-        val content = loadPluginXml()
+        val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("Codebuff.OpenToolWindow"),
             "plugin.xml should declare OpenToolWindow action"
@@ -17,7 +17,7 @@ class EditorActionsTest {
 
     @Test
     fun `plugin xml declares SendSelection action`() {
-        val content = loadPluginXml()
+        val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("Codebuff.SendSelection"),
             "plugin.xml should declare SendSelection action"
@@ -26,7 +26,7 @@ class EditorActionsTest {
 
     @Test
     fun `OpenToolWindow action has keyboard shortcut`() {
-        val content = loadPluginXml()
+        val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("keyboard-shortcut") && content.contains("Codebuff.OpenToolWindow"),
             "OpenToolWindow should have keyboard shortcut"
@@ -35,7 +35,7 @@ class EditorActionsTest {
 
     @Test
     fun `SendSelection action is added to EditorPopupMenu`() {
-        val content = loadPluginXml()
+        val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("EditorPopupMenu"),
             "SendSelection should be added to EditorPopupMenu"
@@ -76,9 +76,5 @@ class EditorActionsTest {
             content.contains("AnAction") && content.contains("actionPerformed"),
             "SendSelectionAction should extend AnAction with actionPerformed"
         )
-    }
-
-    private fun loadPluginXml(): String {
-        return File("src/main/resources/META-INF/plugin.xml").readText()
     }
 }

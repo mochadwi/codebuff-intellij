@@ -7,8 +7,9 @@ import com.intellij.openapi.project.Project
 @Service(Service.Level.PROJECT)
 class CodebuffProjectService(private val project: Project) : Disposable {
 
-    val sessionManager: SessionManager
-        get() = project.getService(SessionManager::class.java)
+    val sessionManager: SessionManager by lazy {
+        project.getService(SessionManager::class.java)
+    }
 
     override fun dispose() {
         // Cleanup resources when project is closed

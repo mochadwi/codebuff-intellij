@@ -56,7 +56,7 @@ class PluginResourcesTest {
 
     @Test
     fun `plugin xml references icon path`() {
-        val content = File("src/main/resources/META-INF/plugin.xml").readText()
+        val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("/icons/codebuff.svg"),
             "plugin.xml should reference codebuff.svg icon"

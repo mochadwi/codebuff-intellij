@@ -1,5 +1,6 @@
 package com.codebuff.intellij.ui
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBScrollPane
@@ -8,7 +9,7 @@ import java.awt.BorderLayout
 import javax.swing.DefaultListModel
 import javax.swing.JPanel
 
-class SessionPanel(private val project: Project) : JPanel(BorderLayout()) {
+class SessionPanel(private val project: Project) : JPanel(BorderLayout()), Disposable {
 
     private val listModel = DefaultListModel<String>()
     private val sessionsList = JBList(listModel)
@@ -20,5 +21,9 @@ class SessionPanel(private val project: Project) : JPanel(BorderLayout()) {
         val scrollPane = JBScrollPane(sessionsList)
 
         add(scrollPane, BorderLayout.CENTER)
+    }
+
+    override fun dispose() {
+        // Cleanup resources
     }
 }

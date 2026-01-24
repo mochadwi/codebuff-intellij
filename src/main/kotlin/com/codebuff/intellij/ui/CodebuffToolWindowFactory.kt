@@ -1,6 +1,9 @@
 package com.codebuff.intellij.ui
 
+import com.codebuff.intellij.CodebuffBundle
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBTextField
@@ -17,18 +20,22 @@ class CodebuffToolWindowFactory : ToolWindowFactory {
         val contentFactory = ContentFactory.getInstance()
         val mainPanel = CodebuffMainPanel(project)
         val content = contentFactory.createContent(mainPanel, null, false)
+        Disposer.register(content, mainPanel)
         toolWindow.contentManager.addContent(content)
     }
 }
 
-internal class CodebuffMainPanel(project: Project) : JPanel(BorderLayout()) {
+internal class CodebuffMainPanel(project: Project) : JPanel(BorderLayout()), Disposable {
 
     private val chatPanel = ChatPanel(project)
     private val sessionPanel = SessionPanel(project)
     private val inputField = JBTextField()
-    private val sendButton = JButton("Send")
+    private val sendButton = JButton(CodebuffBundle.message("chat.send"))
 
     init {
+        Disposer.register(this, chatPanel)
+        Disposer.register(this, sessionPanel)
+
         val splitPane = JSplitPane(JSplitPane.HORIZONTAL_SPLIT).apply {
             leftComponent = sessionPanel
             rightComponent = chatPanel
@@ -45,5 +52,9 @@ internal class CodebuffMainPanel(project: Project) : JPanel(BorderLayout()) {
         border = JBUI.Borders.empty()
         add(splitPane, BorderLayout.CENTER)
         add(inputPanel, BorderLayout.SOUTH)
+    }
+
+    override fun dispose() {
+        // Child panels are disposed via Disposer.register
     }
 }
