@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.codebuff.intellij.PluginDescriptorTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-01-24T10:15:11" hostname="427d3a42d016" time="0.003">
+<testsuite name="com.codebuff.intellij.PluginDescriptorTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-01-24T10:23:20" hostname="8b8d21cc78d4" time="0.003">
   <properties/>
   <testcase name="plugin id is correctly configured()" classname="com.codebuff.intellij.PluginDescriptorTest" time="0.001"/>
-  <testcase name="plugin xml exists in correct location()" classname="com.codebuff.intellij.PluginDescriptorTest" time="0.0"/>
+  <testcase name="plugin xml exists in correct location()" classname="com.codebuff.intellij.PluginDescriptorTest" time="0.001"/>
   <testcase name="actions are registered with shortcuts()" classname="com.codebuff.intellij.PluginDescriptorTest" time="0.0"/>
   <testcase name="toolwindow extension is registered()" classname="com.codebuff.intellij.PluginDescriptorTest" time="0.001"/>
   <testcase name="project services are registered()" classname="com.codebuff.intellij.PluginDescriptorTest" time="0.0"/>

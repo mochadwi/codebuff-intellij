@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.codebuff.intellij.PluginResourcesTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-01-24T10:23:20" hostname="8b8d21cc78d4" time="0.003">
+  <properties/>
+  <testcase name="codebuff svg icon exists()" classname="com.codebuff.intellij.PluginResourcesTest" time="0.0"/>
+  <testcase name="message bundle contains toolwindow title()" classname="com.codebuff.intellij.PluginResourcesTest" time="0.001"/>
+  <testcase name="plugin xml references icon path()" classname="com.codebuff.intellij.PluginResourcesTest" time="0.0"/>
+  <testcase name="codebuff dark svg icon exists()" classname="com.codebuff.intellij.PluginResourcesTest" time="0.0"/>
+  <testcase name="message bundle properties file exists()" classname="com.codebuff.intellij.PluginResourcesTest" time="0.0"/>
+  <testcase name="CodebuffBundle has message function()" classname="com.codebuff.intellij.PluginResourcesTest" time="0.0"/>
+  <testcase name="CodebuffBundle class exists()" classname="com.codebuff.intellij.PluginResourcesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
