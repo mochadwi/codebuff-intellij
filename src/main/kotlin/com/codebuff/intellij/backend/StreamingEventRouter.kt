@@ -1,6 +1,8 @@
 package com.codebuff.intellij.backend
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 
 /**
@@ -11,6 +13,7 @@ import com.intellij.openapi.project.Project
  */
 class StreamingEventRouter(private val project: Project) {
     
+    private val log = Logger.getInstance(javaClass)
     private val listeners = mutableListOf<EventListener>()
     
     interface EventListener {
@@ -20,6 +23,7 @@ class StreamingEventRouter(private val project: Project) {
         fun onDiff(event: DiffEvent)
         fun onError(event: ErrorEvent)
         fun onDone(event: DoneEvent)
+        fun onUnknown(event: UnknownEvent) {}
     }
     
     fun addListener(listener: EventListener) {
@@ -35,17 +39,29 @@ class StreamingEventRouter(private val project: Project) {
     }
     
     fun routeEvent(event: BackendEvent) {
-        ApplicationManager.getApplication().invokeLater {
-            synchronized(listeners) {
-                when (event) {
-                    is TokenEvent -> listeners.forEach { it.onToken(event) }
-                    is ToolCallEvent -> listeners.forEach { it.onToolCall(event) }
-                    is ToolResultEvent -> listeners.forEach { it.onToolResult(event) }
-                    is DiffEvent -> listeners.forEach { it.onDiff(event) }
-                    is ErrorEvent -> listeners.forEach { it.onError(event) }
-                    is DoneEvent -> listeners.forEach { it.onDone(event) }
-                }
-            }
+        // Check disposal before dispatching
+        if (project.isDisposed) {
+            return
         }
+        
+        // Snapshot listeners to avoid holding lock during callbacks
+        val snapshot = synchronized(listeners) { listeners.toList() }
+        
+        ApplicationManager.getApplication().invokeLater({
+            // Check disposal again inside the lambda
+            if (project.isDisposed) {
+                return@invokeLater
+            }
+            
+            when (event) {
+                is TokenEvent -> snapshot.forEach { it.onToken(event) }
+                is ToolCallEvent -> snapshot.forEach { it.onToolCall(event) }
+                is ToolResultEvent -> snapshot.forEach { it.onToolResult(event) }
+                is DiffEvent -> snapshot.forEach { it.onDiff(event) }
+                is ErrorEvent -> snapshot.forEach { it.onError(event) }
+                is DoneEvent -> snapshot.forEach { it.onDone(event) }
+                is UnknownEvent -> snapshot.forEach { it.onUnknown(event) }
+            }
+        }, ModalityState.defaultModalityState())
     }
 }

@@ -62,6 +62,12 @@ data class DoneEvent(
     override val sessionId: String
 ) : BackendEvent()
 
+data class UnknownEvent(
+    override val sessionId: String,
+    val type: String,
+    val rawJson: String
+) : BackendEvent()
+
 // Protocol Parser
 object Protocol {
     fun parseEvent(json: String): BackendEvent {
@@ -107,7 +113,11 @@ object Protocol {
                 message = obj.get("message").asString
             )
             "done" -> DoneEvent(sessionId = sessionId)
-            else -> DoneEvent(sessionId = sessionId) // Unknown type handled gracefully
+            else -> UnknownEvent(
+                sessionId = sessionId,
+                type = type,
+                rawJson = json
+            )
         }
     }
 }
