@@ -36,10 +36,9 @@ dependencies {
     // IntelliJ Platform SDK (needed for plugin build & tests like BasePlatformTestCase)
     intellijPlatform {
         intellijIdeaCommunity("2024.2")
+        // Tools for bytecode instrumentation and Java compiler used by IntelliJ plugin tests
+        instrumentationTools()
     }
-
-    // Tools for bytecode instrumentation and Java compiler used by IntelliJ plugin tests
-    instrumentationTools()
 
     // HTTP client
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
@@ -59,6 +58,6 @@ tasks.withType<KotlinCompile>().configureEach {
 
 tasks.test {
     // Tests (including PluginDescriptorTest and CodebuffToolWindowFactoryTest)
-    // will be executed via Docker: `docker compose run --rm gradle test ...`
+    // are executed via Docker: `docker compose run --rm gradle test ...`
     useJUnitPlatform()
 }
