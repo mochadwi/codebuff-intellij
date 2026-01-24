@@ -12,19 +12,24 @@ IntelliJ IDEA plugin for Codebuff AI coding assistant. Thin UI client that commu
 
 ## Commands
 
+All Gradle commands run through Docker.
+
 ```bash
-# Development
-./gradlew runIde          # Run plugin in sandbox IDE
-./gradlew buildPlugin     # Build plugin distribution
-./gradlew verifyPlugin    # Verify plugin compatibility
+# Docker setup (first time)
+docker-compose build
 
-# Testing
-./gradlew test            # Run unit tests
-./gradlew check           # Run all checks (test + verify)
+# Development (via Docker)
+docker-compose run --rm gradle runIde        # Run plugin in sandbox IDE
+docker-compose run --rm gradle buildPlugin   # Build plugin distribution
+docker-compose run --rm gradle verifyPlugin  # Verify plugin compatibility
 
-# Formatting
-./gradlew ktlintCheck     # Check Kotlin code style
-./gradlew ktlintFormat    # Auto-format Kotlin code
+# Testing (via Docker)
+docker-compose run --rm gradle test          # Run unit tests
+docker-compose run --rm gradle check         # Run all checks (test + verify)
+
+# Formatting (via Docker)
+docker-compose run --rm gradle ktlintCheck   # Check Kotlin code style
+docker-compose run --rm gradle ktlintFormat  # Auto-format Kotlin code
 
 # Issue Tracking (Beads)
 bd list                   # View all issues
@@ -113,9 +118,9 @@ git worktree remove ../worktrees/<epic-id>
 - All tests must pass before committing
 
 ### Epic Completion
-1. All tasks done → `./gradlew test`
-2. Quality gates → `./gradlew check`
-3. Build → `./gradlew buildPlugin`
+1. All tasks done → `docker-compose run --rm gradle test`
+2. Quality gates → `docker-compose run --rm gradle check`
+3. Build → `docker-compose run --rm gradle buildPlugin`
 4. If fails → Fix and repeat until green
 5. Push → `git push origin <epic-id>`
 6. Merge PR → Clean up worktree
@@ -123,9 +128,9 @@ git worktree remove ../worktrees/<epic-id>
 ## Session Completion Workflow
 
 **Always complete before ending:**
-1. Run tests: `./gradlew test`
+1. Run tests: `docker-compose run --rm gradle test`
 2. File issues for remaining work (`bd create`)
-3. Run quality gates (`./gradlew check && ./gradlew buildPlugin`)
+3. Run quality gates (`docker-compose run --rm gradle check && docker-compose run --rm gradle buildPlugin`)
 4. Update issue status (`bd update <id> --status done`)
 5. Push to remote: `git pull --rebase && bd sync && git push`
 6. Clean up worktrees (if epic merged): `git worktree remove ../worktrees/<epic-id>`

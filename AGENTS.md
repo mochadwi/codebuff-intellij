@@ -71,20 +71,37 @@ codebuff-intellij/
 
 ## Commands
 
+All Gradle commands run through Docker for consistency.
+
 ```bash
-# Development
-./gradlew runIde                  # Run plugin in sandbox IDE
-./gradlew buildPlugin             # Build plugin distribution
-./gradlew verifyPlugin            # Verify plugin compatibility
+# Docker setup (first time)
+docker-compose build              # Build the development image
 
-# Testing
-./gradlew test                    # Run unit tests
-./gradlew check                   # Run all checks (test + verify)
+# Development (via Docker)
+docker-compose run --rm gradle runIde        # Run plugin in sandbox IDE
+docker-compose run --rm gradle buildPlugin   # Build plugin distribution
+docker-compose run --rm gradle verifyPlugin  # Verify plugin compatibility
 
-# Formatting & Linting
-./gradlew ktlintCheck             # Check Kotlin code style
-./gradlew ktlintFormat            # Auto-format Kotlin code
+# Testing (via Docker)
+docker-compose run --rm gradle test          # Run unit tests
+docker-compose run --rm gradle check         # Run all checks (test + verify)
+
+# Formatting & Linting (via Docker)
+docker-compose run --rm gradle ktlintCheck   # Check Kotlin code style
+docker-compose run --rm gradle ktlintFormat  # Auto-format Kotlin code
+
+# Convenience scripts (after Docker setup)
+./scripts/docker-test.sh          # Shorthand for docker-compose run test
+./scripts/docker-build.sh         # Shorthand for docker-compose run buildPlugin
 ```
+
+### Docker Configuration
+
+The project uses Docker to ensure consistent JDK 17 and Gradle environment:
+
+- **docker/Dockerfile**: Base image with JDK 17, Gradle
+- **docker-compose.yml**: Service definitions with volume mounts
+- **Gradle cache**: Persisted in named volume `gradle-cache`
 
 ## Architecture Details
 
@@ -210,17 +227,17 @@ When ALL tasks in an epic are done:
 
 1. **Verify all tests pass:**
    ```bash
-   ./gradlew test
+   docker-compose run --rm gradle test
    ```
 
 2. **Run full quality gates:**
    ```bash
-   ./gradlew check
+   docker-compose run --rm gradle check
    ```
 
 3. **Build the plugin:**
    ```bash
-   ./gradlew buildPlugin
+   docker-compose run --rm gradle buildPlugin
    ```
 
 4. **If ANY step fails:**
@@ -299,7 +316,7 @@ Plugin extends these IntelliJ extension points:
 
 1. **Ensure all tests pass:**
    ```bash
-   ./gradlew test
+   docker-compose run --rm gradle test
    ```
 
 2. **File issues for remaining work** - Create issues for anything that needs follow-up
@@ -309,8 +326,8 @@ Plugin extends these IntelliJ extension points:
 
 3. **Run quality gates** (if code changed):
    ```bash
-   ./gradlew check
-   ./gradlew buildPlugin
+   docker-compose run --rm gradle check
+   docker-compose run --rm gradle buildPlugin
    ```
 
 4. **Update issue status** - Close finished work, update in-progress items:
