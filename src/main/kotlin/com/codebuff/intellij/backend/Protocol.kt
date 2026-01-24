@@ -2,16 +2,6 @@ package com.codebuff.intellij.backend
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import kotlinx.coroutines.flow.Flow
-
-// Backend Client Interface
-interface BackendClient {
-    suspend fun connect()
-    suspend fun disconnect()
-    suspend fun sendMessage(request: SendMessageRequest): Flow<BackendEvent>
-    suspend fun cancel(sessionId: String)
-    val isConnected: Boolean
-}
 
 /**
  * JSON Lines protocol for Codebuff backend communication.

@@ -59,8 +59,8 @@ class CodebuffSettingsConfigurable : Configurable {
     override fun getDisplayName() = "Codebuff"
 }
 
-class CodebuffSettingsPanel : JPanel() {
-    private val cliPathField = JTextField("codebuff", 30)
+class CodebuffSettingsPanel(private val settings: CodebuffSettings = getSettings()) : JPanel() {
+    private val cliPathField = JTextField(settings.state.cliPath, 30)
     
     init {
         layout = FlowLayout(FlowLayout.LEFT)
@@ -68,13 +68,22 @@ class CodebuffSettingsPanel : JPanel() {
         add(cliPathField)
     }
     
-    fun isModified() = false
+    fun isModified() = cliPathField.text != settings.state.cliPath
     fun apply() {
-        val settings = CodebuffSettings.getInstance()
         settings.state.cliPath = cliPathField.text
     }
     fun reset() {
-        val settings = CodebuffSettings.getInstance()
         cliPathField.text = settings.state.cliPath
+    }
+    
+    companion object {
+        private fun getSettings(): CodebuffSettings {
+            return try {
+                CodebuffSettings.getInstance()
+            } catch (e: Exception) {
+                // Fallback for tests without ApplicationManager
+                CodebuffSettings()
+            }
+        }
     }
 }
