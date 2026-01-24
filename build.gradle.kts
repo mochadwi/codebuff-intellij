@@ -10,7 +10,11 @@ group = "com.codebuff.intellij"
 version = "0.1.0-SNAPSHOT"
 
 repositories {
+    // Standard dependencies
     mavenCentral()
+
+    // Required for IntelliJ Platform artifacts (fixes 'No IntelliJ Platform dependency found')
+    intellijPlatform.defaultRepositories()
 }
 
 java {
@@ -29,6 +33,14 @@ kotlin {
 // - gson
 // and it also checks that this file contains the string "org.jetbrains.intellij.platform".
 dependencies {
+    // IntelliJ Platform SDK (needed for plugin build & tests like BasePlatformTestCase)
+    intellijPlatform {
+        intellijIdeaCommunity("2024.2")
+    }
+
+    // Tools for bytecode instrumentation and Java compiler used by IntelliJ plugin tests
+    instrumentationTools()
+
     // HTTP client
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
@@ -37,8 +49,6 @@ dependencies {
 
     // JSON serialization
     implementation("com.google.code.gson:gson:2.11.0")
-
-    // IntelliJ Platform dependencies will be wired up in later tasks as needed.
 }
 
 tasks.withType<KotlinCompile>().configureEach {
@@ -48,5 +58,7 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 tasks.test {
+    // Tests (including PluginDescriptorTest and CodebuffToolWindowFactoryTest)
+    // will be executed via Docker: `docker compose run --rm gradle test ...`
     useJUnitPlatform()
 }
