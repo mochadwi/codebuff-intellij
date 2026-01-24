@@ -16,20 +16,20 @@ All Gradle commands run through Docker.
 
 ```bash
 # Docker setup (first time)
-docker-compose build
+docker compose build
 
 # Development (via Docker)
-docker-compose run --rm gradle runIde        # Run plugin in sandbox IDE
-docker-compose run --rm gradle buildPlugin   # Build plugin distribution
-docker-compose run --rm gradle verifyPlugin  # Verify plugin compatibility
+docker compose run --rm gradle runIde        # Run plugin in sandbox IDE
+docker compose run --rm gradle buildPlugin   # Build plugin distribution
+docker compose run --rm gradle verifyPlugin  # Verify plugin compatibility
 
 # Testing (via Docker)
-docker-compose run --rm gradle test          # Run unit tests
-docker-compose run --rm gradle check         # Run all checks (test + verify)
+docker compose run --rm gradle test          # Run unit tests
+docker compose run --rm gradle check         # Run all checks (test + verify)
 
 # Formatting (via Docker)
-docker-compose run --rm gradle ktlintCheck   # Check Kotlin code style
-docker-compose run --rm gradle ktlintFormat  # Auto-format Kotlin code
+docker compose run --rm gradle ktlintCheck   # Check Kotlin code style
+docker compose run --rm gradle ktlintFormat  # Auto-format Kotlin code
 
 # Issue Tracking (Beads)
 bd list                   # View all issues
@@ -81,19 +81,24 @@ All services are **Project-level** (`@Service(Service.Level.PROJECT)`):
 Communication via `codebuff ide --stdio` using JSON Lines:
 - Events: `token`, `tool_call`, `tool_result`, `diff`, `error`, `done`
 
-## Epic Development Workflow
+## Git Workflow
 
-### Git Worktree Strategy
-Every Beads epic MUST be developed in a separate git worktree:
+### Feature Branch Strategy
+All development uses feature branches merged to main:
 
 ```bash
-# Create worktree for epic
+git checkout -b <task-id>           # Create feature branch
+git add -A && git commit -m "[<task-id>] <description>"
+git checkout main && git merge <task-id>  # Merge to main
+git branch -d <task-id>             # Delete feature branch
+```
+
+### Git Worktree Strategy (Optional)
+For parallel epic development:
+
+```bash
 git worktree add ../worktrees/<epic-id> -b <epic-id>
-
-# List worktrees
 git worktree list
-
-# Remove after merge
 git worktree remove ../worktrees/<epic-id>
 ```
 
@@ -118,9 +123,9 @@ git worktree remove ../worktrees/<epic-id>
 - All tests must pass before committing
 
 ### Epic Completion
-1. All tasks done → `docker-compose run --rm gradle test`
-2. Quality gates → `docker-compose run --rm gradle check`
-3. Build → `docker-compose run --rm gradle buildPlugin`
+1. All tasks done → `docker compose run --rm gradle test`
+2. Quality gates → `docker compose run --rm gradle check`
+3. Build → `docker compose run --rm gradle buildPlugin`
 4. If fails → Fix and repeat until green
 5. Push → `git push origin <epic-id>`
 6. Merge PR → Clean up worktree
@@ -128,9 +133,9 @@ git worktree remove ../worktrees/<epic-id>
 ## Session Completion Workflow
 
 **Always complete before ending:**
-1. Run tests: `docker-compose run --rm gradle test`
+1. Run tests: `docker compose run --rm gradle test`
 2. File issues for remaining work (`bd create`)
-3. Run quality gates (`docker-compose run --rm gradle check && docker-compose run --rm gradle buildPlugin`)
+3. Run quality gates (`docker compose run --rm gradle check && docker compose run --rm gradle buildPlugin`)
 4. Update issue status (`bd update <id> --status done`)
 5. Push to remote: `git pull --rebase && bd sync && git push`
 6. Clean up worktrees (if epic merged): `git worktree remove ../worktrees/<epic-id>`

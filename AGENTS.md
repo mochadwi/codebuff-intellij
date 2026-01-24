@@ -75,24 +75,24 @@ All Gradle commands run through Docker for consistency.
 
 ```bash
 # Docker setup (first time)
-docker-compose build              # Build the development image
+docker compose build              # Build the development image
 
 # Development (via Docker)
-docker-compose run --rm gradle runIde        # Run plugin in sandbox IDE
-docker-compose run --rm gradle buildPlugin   # Build plugin distribution
-docker-compose run --rm gradle verifyPlugin  # Verify plugin compatibility
+docker compose run --rm gradle runIde        # Run plugin in sandbox IDE
+docker compose run --rm gradle buildPlugin   # Build plugin distribution
+docker compose run --rm gradle verifyPlugin  # Verify plugin compatibility
 
 # Testing (via Docker)
-docker-compose run --rm gradle test          # Run unit tests
-docker-compose run --rm gradle check         # Run all checks (test + verify)
+docker compose run --rm gradle test          # Run unit tests
+docker compose run --rm gradle check         # Run all checks (test + verify)
 
 # Formatting & Linting (via Docker)
-docker-compose run --rm gradle ktlintCheck   # Check Kotlin code style
-docker-compose run --rm gradle ktlintFormat  # Auto-format Kotlin code
+docker compose run --rm gradle ktlintCheck   # Check Kotlin code style
+docker compose run --rm gradle ktlintFormat  # Auto-format Kotlin code
 
 # Convenience scripts (after Docker setup)
-./scripts/docker-test.sh          # Shorthand for docker-compose run test
-./scripts/docker-build.sh         # Shorthand for docker-compose run buildPlugin
+./scripts/docker-test.sh          # Shorthand for docker compose run test
+./scripts/docker-build.sh         # Shorthand for docker compose run buildPlugin
 ```
 
 ### Docker Configuration
@@ -139,11 +139,35 @@ All services are **Project-level** (`@Service(Service.Level.PROJECT)`):
 - **UI Updates**: Always marshal to EDT via `ApplicationManager.getApplication().invokeLater`
 - **File Writes**: Use `WriteCommandAction.runWriteCommandAction()` for all VFS modifications
 
-## Epic Development Workflow
+## Git Workflow
 
-### Git Worktree Strategy
+### Feature Branch Strategy
 
-Every Beads epic MUST be developed in a separate git worktree. This enables parallel development and clean isolation between features.
+All development uses feature branches merged to main:
+
+```bash
+# Create feature branch for a task
+git checkout -b <task-id>
+# Example: git checkout -b cb-vnl.13
+
+# Work on the feature...
+git add -A && git commit -m "[<task-id>] <description>"
+
+# Merge to main
+git checkout main
+git merge <task-id>
+git branch -d <task-id>  # Delete feature branch after merge
+```
+
+**Branch Rules:**
+- Feature branch name matches task ID (e.g., `cb-vnl.13`)
+- Always merge to `main` branch
+- Delete feature branch after successful merge
+- Never commit directly to main
+
+### Git Worktree Strategy (Optional for Epics)
+
+For parallel development of multiple epics, use git worktrees:
 
 ```bash
 # Create worktree for an epic
@@ -162,6 +186,8 @@ git worktree remove ../worktrees/<epic-id>
 - Branch name matches epic ID
 - One worktree per epic, never share worktrees between epics
 - Clean up worktrees after merge to main
+
+## Development Workflow
 
 ### Test-Driven Development (TDD) Workflow
 
@@ -227,17 +253,17 @@ When ALL tasks in an epic are done:
 
 1. **Verify all tests pass:**
    ```bash
-   docker-compose run --rm gradle test
+   docker compose run --rm gradle test
    ```
 
 2. **Run full quality gates:**
    ```bash
-   docker-compose run --rm gradle check
+   docker compose run --rm gradle check
    ```
 
 3. **Build the plugin:**
    ```bash
-   docker-compose run --rm gradle buildPlugin
+   docker compose run --rm gradle buildPlugin
    ```
 
 4. **If ANY step fails:**
@@ -316,7 +342,7 @@ Plugin extends these IntelliJ extension points:
 
 1. **Ensure all tests pass:**
    ```bash
-   docker-compose run --rm gradle test
+   docker compose run --rm gradle test
    ```
 
 2. **File issues for remaining work** - Create issues for anything that needs follow-up
@@ -326,8 +352,8 @@ Plugin extends these IntelliJ extension points:
 
 3. **Run quality gates** (if code changed):
    ```bash
-   docker-compose run --rm gradle check
-   docker-compose run --rm gradle buildPlugin
+   docker compose run --rm gradle check
+   docker compose run --rm gradle buildPlugin
    ```
 
 4. **Update issue status** - Close finished work, update in-progress items:

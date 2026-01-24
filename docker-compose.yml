@@ -1,0 +1,17 @@
+services:
+  gradle:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/project
+      - gradle-cache:/home/gradle/.gradle
+    working_dir: /project
+    environment:
+      - GRADLE_USER_HOME=/home/gradle/.gradle
+    entrypoint: ["gradle"]
+    command: ["--version"]
+
+volumes:
+  gradle-cache:
+    name: codebuff-intellij-gradle-cache
