@@ -98,6 +98,20 @@ Communication via `codebuff ide --stdio` using JSON Lines:
 
 ## Git Workflow
 
+### Git Hooks Setup
+
+After cloning, run once to enable git hooks:
+```bash
+./scripts/setup-hooks.sh
+```
+
+This sets `core.hooksPath` to `.githooks/`, which works across all worktrees.
+
+**Pre-commit hook:** Runs ktlint on staged Kotlin files automatically.
+
+Bypass when needed: `git commit --no-verify`
+
+
 ### Feature Branch Strategy
 All development uses feature branches merged to main:
 
@@ -172,6 +186,8 @@ All pull requests trigger automatic verification via `.github/workflows/pr-verif
 7. Build plugin (`./gradlew buildPlugin`)
 8. Upload plugin artifact (ZIP)
 9. Upload test reports on failure
+
+> **Note:** ktlint runs locally via pre-commit hooks (not in CI) for faster builds.
 
 **Triggers:**
 - `pull_request` to `main` branch

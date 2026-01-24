@@ -36,8 +36,6 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
-      - name: Lint (ktlintCheck)
-        run: ./gradlew ktlintCheck --stacktrace
 
       - name: Run Tests
         run: ./gradlew test --stacktrace
