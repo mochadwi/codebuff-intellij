@@ -1,5 +1,6 @@
 package com.codebuff.intellij.backend
 
+import com.codebuff.intellij.ui.ChatPanel
 import com.intellij.testFramework.BasePlatformTestCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -76,42 +77,4 @@ class CancelFunctionalityTest : BasePlatformTestCase() {
         
         assertTrue(chatPanel.getCurrentMessage().isEmpty(), "Should clear partial message")
     }
-}
-
-// BackendClient interface for testing
-interface BackendClient {
-    suspend fun connect()
-    suspend fun disconnect()
-    suspend fun sendMessage(request: SendMessageRequest): kotlinx.coroutines.flow.Flow<BackendEvent>
-    suspend fun cancel(sessionId: String)
-    val isConnected: Boolean
-}
-
-// Extended ChatPanel for cancel testing
-class ChatPanel(project: com.intellij.openapi.project.Project) : javax.swing.JPanel() {
-    val cancelButton = javax.swing.JButton("Cancel").apply { isVisible = false }
-    var isLoading = false
-    var isInputEnabled = true
-    private var currentMessage = ""
-    
-    fun setLoading(loading: Boolean) {
-        isLoading = loading
-        cancelButton.isVisible = loading
-        isInputEnabled = !loading
-    }
-    
-    fun onCancel() {
-        isLoading = false
-        cancelButton.isVisible = false
-        isInputEnabled = true
-        currentMessage = ""
-    }
-    
-    fun setCurrentMessage(msg: String) {
-        currentMessage = msg
-    }
-    
-    fun getCurrentMessage(): String = currentMessage
-    
-    fun getDisplayText(): String = currentMessage
 }

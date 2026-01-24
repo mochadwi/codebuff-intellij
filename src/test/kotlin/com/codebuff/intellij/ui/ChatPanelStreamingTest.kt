@@ -101,32 +101,3 @@ class ChatPanelStreamingTest : BasePlatformTestCase() {
         Thread.sleep(100)
     }
 }
-
-// ChatPanel stub for testing
-class ChatPanel(private val project: com.intellij.openapi.project.Project) : javax.swing.JPanel() {
-    private val messages = StringBuilder()
-    var isLoading = false
-    var isInputEnabled = true
-    
-    fun getDisplayText(): String = messages.toString()
-    
-    fun onToken(event: TokenEvent) {
-        messages.append(event.text)
-        isLoading = true
-        isInputEnabled = false
-    }
-    
-    fun onDone(event: DoneEvent) {
-        isLoading = false
-        isInputEnabled = true
-    }
-    
-    fun onError(event: ErrorEvent) {
-        messages.append("\nError: ${event.message}")
-    }
-    
-    fun onToolCall(event: ToolCallEvent) {
-        isLoading = true
-        isInputEnabled = false
-    }
-}

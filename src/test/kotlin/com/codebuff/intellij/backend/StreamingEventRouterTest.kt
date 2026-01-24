@@ -139,38 +139,3 @@ class StreamingEventRouterTest : BasePlatformTestCase() {
         override fun onDone(event: DoneEvent) { doneEvents.add(event) }
     }
 }
-
-// Router stub for testing
-class StreamingEventRouter(private val project: com.intellij.openapi.project.Project) {
-    private val listeners = mutableListOf<EventListener>()
-    
-    interface EventListener {
-        fun onToken(event: TokenEvent)
-        fun onToolCall(event: ToolCallEvent)
-        fun onToolResult(event: ToolResultEvent)
-        fun onDiff(event: DiffEvent)
-        fun onError(event: ErrorEvent)
-        fun onDone(event: DoneEvent)
-    }
-    
-    fun addListener(listener: EventListener) {
-        listeners.add(listener)
-    }
-    
-    fun removeListener(listener: EventListener) {
-        listeners.remove(listener)
-    }
-    
-    fun routeEvent(event: BackendEvent) {
-        com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
-            when (event) {
-                is TokenEvent -> listeners.forEach { it.onToken(event) }
-                is ToolCallEvent -> listeners.forEach { it.onToolCall(event) }
-                is ToolResultEvent -> listeners.forEach { it.onToolResult(event) }
-                is DiffEvent -> listeners.forEach { it.onDiff(event) }
-                is ErrorEvent -> listeners.forEach { it.onError(event) }
-                is DoneEvent -> listeners.forEach { it.onDone(event) }
-            }
-        }
-    }
-}

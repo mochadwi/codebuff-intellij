@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertThrows
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.assertThrows
 
 /**
  * TDD Test First: Tests for JSON Lines protocol serialization/deserialization.
@@ -127,91 +127,5 @@ class ProtocolTest {
         
         assertTrue(event is ToolResultEvent)
         assertEquals("read_files", (event as ToolResultEvent).tool)
-    }
-}
-
-// Protocol message classes
-data class SendMessageRequest(
-    val id: String,
-    val type: String = "sendMessage",
-    val sessionId: String,
-    val text: String,
-    val context: List<Map<String, Any>> = emptyList()
-)
-
-data class CancelRequest(
-    val id: String = java.util.UUID.randomUUID().toString(),
-    val type: String = "cancel",
-    val sessionId: String
-)
-
-sealed class BackendEvent {
-    abstract val sessionId: String
-}
-
-data class TokenEvent(
-    override val sessionId: String,
-    val text: String
-) : BackendEvent()
-
-data class ToolCallEvent(
-    override val sessionId: String,
-    val tool: String,
-    val input: JsonObject
-) : BackendEvent()
-
-data class ToolResultEvent(
-    override val sessionId: String,
-    val tool: String,
-    val output: JsonObject
-) : BackendEvent()
-
-data class DiffEvent(
-    override val sessionId: String,
-    val files: List<Map<String, Any>>
-) : BackendEvent()
-
-data class ErrorEvent(
-    override val sessionId: String,
-    val message: String
-) : BackendEvent()
-
-data class DoneEvent(
-    override val sessionId: String
-) : BackendEvent()
-
-object Protocol {
-    fun parseEvent(json: String): BackendEvent {
-        val gson = Gson()
-        val obj = gson.fromJson(json, JsonObject::class.java)
-        val type = obj.get("type").asString
-        val sessionId = obj.get("sessionId").asString
-        
-        return when (type) {
-            "token" -> TokenEvent(
-                sessionId = sessionId,
-                text = obj.get("text").asString
-            )
-            "tool_call" -> ToolCallEvent(
-                sessionId = sessionId,
-                tool = obj.get("tool").asString,
-                input = obj.get("input").asJsonObject
-            )
-            "tool_result" -> ToolResultEvent(
-                sessionId = sessionId,
-                tool = obj.get("tool").asString,
-                output = obj.get("output").asJsonObject
-            )
-            "diff" -> DiffEvent(
-                sessionId = sessionId,
-                files = emptyList()
-            )
-            "error" -> ErrorEvent(
-                sessionId = sessionId,
-                message = obj.get("message").asString
-            )
-            "done" -> DoneEvent(sessionId = sessionId)
-            else -> DoneEvent(sessionId = sessionId) // Unknown type handled gracefully
-        }
     }
 }
