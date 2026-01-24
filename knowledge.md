@@ -81,6 +81,21 @@ All services are **Project-level** (`@Service(Service.Level.PROJECT)`):
 Communication via `codebuff ide --stdio` using JSON Lines:
 - Events: `token`, `tool_call`, `tool_result`, `diff`, `error`, `done`
 
+### Phase 2 Audit Findings (cb-ble.13)
+
+**Critical patterns to avoid:**
+- `GlobalScope.launch` → Use project-tied `CoroutineScope(SupervisorJob() + Dispatchers.IO)`
+- `runBlocking` in `dispose()` → Non-blocking cleanup, cancel scope
+- `PrintWriter` → Use `BufferedWriter(OutputStreamWriter(...))` for error propagation
+- `redirectErrorStream(true)` → Consume stderr on separate coroutine
+- Custom `Disposable` → Use `com.intellij.openapi.Disposable`
+- Swallowed exceptions → Log with `Logger.getInstance()`
+- Missing `@Volatile` on shared state → Add `@Volatile`
+- `readLine() == null` not handled → Break loop, emit ErrorEvent
+- Unknown event → DoneEvent → Add `UnknownEvent` or log+skip
+- Lock held during callbacks → Copy listeners before callbacks
+- `invokeLater` without disposal check → Check `project.isDisposed` first
+
 ## Git Workflow
 
 ### Feature Branch Strategy

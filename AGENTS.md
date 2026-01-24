@@ -334,6 +334,84 @@ Plugin extends these IntelliJ extension points:
 - [Codebuff SDK](https://www.npmjs.com/package/@codebuff/sdk)
 - [OpenCode_UI Reference](https://github.com/LaiZhou/OpenCode_UI)
 
+## Phase 2 Audit Findings (cb-ble.13)
+
+**Code audit on 2026-01-24** identified 11 critical issues in the Phase 2 GREEN implementation.
+
+### Critical Patterns to Avoid
+
+| Pattern | Problem | Solution |
+|---------|---------|----------|
+| `GlobalScope.launch` | Leaks coroutines, ignores project lifecycle | Use project-tied `CoroutineScope(SupervisorJob() + Dispatchers.IO)` |
+| `runBlocking` in `dispose()` | Deadlocks/freezes IDE shutdown | Non-blocking cleanup, cancel scope |
+| `PrintWriter` | Silently swallows I/O errors | Use `BufferedWriter(OutputStreamWriter(...))` |
+| `redirectErrorStream(true)` | Mixes stderr into JSONL stream | Consume stderr on separate coroutine |
+| Custom `Disposable` interface | Conflicts with IntelliJ lifecycle | Use `com.intellij.openapi.Disposable` |
+| Swallowed exceptions | Violates error handling rules | Log with `Logger.getInstance()` |
+| Missing `@Volatile` | Thread visibility bugs | Add `@Volatile` to shared state |
+| `readLine() == null` not handled | Infinite loop on EOF | Break loop, emit ErrorEvent |
+| Unknown event → `DoneEvent` | Prematurely terminates streaming | Add `UnknownEvent` or log+skip |
+| Lock held during callbacks | Potential deadlock | Copy listeners before callbacks |
+| `invokeLater` without disposal check | Dispatches to disposed components | Check `project.isDisposed` first |
+
+### Correct Patterns
+
+```kotlin
+// Correct: Project-tied coroutine scope
+private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+// Correct: Non-blocking disposal
+override fun dispose() {
+    scope.cancel()
+    writer?.close()
+    reader?.close()
+    process?.destroy()
+}
+
+// Correct: BufferedWriter with error propagation
+writer = BufferedWriter(OutputStreamWriter(process.outputStream, StandardCharsets.UTF_8))
+writer.write(json)
+writer.write("\n")
+writer.flush()
+
+// Correct: Separate stderr consumption
+scope.launch {
+    process.errorStream.bufferedReader().useLines { lines ->
+        lines.forEach { log.debug("[codebuff stderr] $it") }
+    }
+}
+
+// Correct: Thread-safe state
+@Volatile private var isConnectedFlag = false
+
+// Correct: Listener snapshot before callbacks
+val snapshot = synchronized(listeners) { listeners.toList() }
+snapshot.forEach { it.onToken(event) }
+
+// Correct: Disposal check in invokeLater
+if (isDisposed || project.isDisposed) return
+ApplicationManager.getApplication().invokeLater({
+    if (isDisposed || project.isDisposed) return@invokeLater
+    // ... dispatch events
+}, ModalityState.defaultModalityState())
+```
+
+### Refactor Tasks (cb-ble.13.x)
+
+| Task | Description | Files |
+|------|-------------|-------|
+| cb-ble.13.1 | Replace GlobalScope with project-tied scope | CliBackendClient.kt |
+| cb-ble.13.2 | Remove runBlocking from dispose() | CliBackendClient.kt |
+| cb-ble.13.3 | Replace PrintWriter with BufferedWriter | CliBackendClient.kt |
+| cb-ble.13.4 | Separate stderr from stdout | CliBackendClient.kt |
+| cb-ble.13.5 | Use IntelliJ Disposable | CliBackendClient.kt |
+| cb-ble.13.6 | Add Logger, fix swallowed exceptions | CliBackendClient.kt |
+| cb-ble.13.7 | Add @Volatile to shared state | CliBackendClient.kt |
+| cb-ble.13.8 | Fix EOF infinite loop | CliBackendClient.kt |
+| cb-ble.13.9 | Fix unknown event type handling | Protocol.kt |
+| cb-ble.13.10 | Fix listener lock during callbacks | StreamingEventRouter.kt |
+| cb-ble.13.11 | Add disposed check to invokeLater | StreamingEventRouter.kt |
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
