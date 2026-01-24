@@ -9,14 +9,14 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 @Service(Service.Level.PROJECT)
 class SessionManager(private val project: Project) : Disposable {
-
     private val sessions = ConcurrentHashMap<String, Session>()
 
     fun createSession(): Session {
-        val session = Session(
-            id = UUID.randomUUID().toString(),
-            projectPath = project.basePath ?: ""
-        )
+        val session =
+            Session(
+                id = UUID.randomUUID().toString(),
+                projectPath = project.basePath ?: "",
+            )
         sessions[session.id] = session
         return session
     }
@@ -37,12 +37,12 @@ class SessionManager(private val project: Project) : Disposable {
 data class Session(
     val id: String,
     val projectPath: String,
-    val messages: CopyOnWriteArrayList<Message> = CopyOnWriteArrayList()
+    val messages: CopyOnWriteArrayList<Message> = CopyOnWriteArrayList(),
 )
 
 data class Message(
     val id: String,
     val role: String,
     val content: String,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
 )

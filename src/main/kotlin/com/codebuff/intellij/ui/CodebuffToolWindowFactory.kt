@@ -15,8 +15,10 @@ import javax.swing.JPanel
 import javax.swing.JSplitPane
 
 class CodebuffToolWindowFactory : ToolWindowFactory {
-
-    override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+    override fun createToolWindowContent(
+        project: Project,
+        toolWindow: ToolWindow,
+    ) {
         val contentFactory = ContentFactory.getInstance()
         val mainPanel = CodebuffMainPanel(project)
         val content = contentFactory.createContent(mainPanel, null, false)
@@ -26,7 +28,6 @@ class CodebuffToolWindowFactory : ToolWindowFactory {
 }
 
 internal class CodebuffMainPanel(project: Project) : JPanel(BorderLayout()), Disposable {
-
     private val chatPanel = ChatPanel(project)
     private val sessionPanel = SessionPanel(project)
     private val inputField = JBTextField()
@@ -36,18 +37,20 @@ internal class CodebuffMainPanel(project: Project) : JPanel(BorderLayout()), Dis
         Disposer.register(this, chatPanel)
         Disposer.register(this, sessionPanel)
 
-        val splitPane = JSplitPane(JSplitPane.HORIZONTAL_SPLIT).apply {
-            leftComponent = sessionPanel
-            rightComponent = chatPanel
-            resizeWeight = 0.25
-            border = null
-        }
+        val splitPane =
+            JSplitPane(JSplitPane.HORIZONTAL_SPLIT).apply {
+                leftComponent = sessionPanel
+                rightComponent = chatPanel
+                resizeWeight = 0.25
+                border = null
+            }
 
-        val inputPanel = JPanel(BorderLayout()).apply {
-            border = JBUI.Borders.empty(8, 8)
-            add(inputField, BorderLayout.CENTER)
-            add(sendButton, BorderLayout.EAST)
-        }
+        val inputPanel =
+            JPanel(BorderLayout()).apply {
+                border = JBUI.Borders.empty(8, 8)
+                add(inputField, BorderLayout.CENTER)
+                add(sendButton, BorderLayout.EAST)
+            }
 
         border = JBUI.Borders.empty()
         add(splitPane, BorderLayout.CENTER)

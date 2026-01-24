@@ -5,17 +5,16 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class ServiceLayerTest {
-
     @Test
     fun `plugin xml declares CodebuffProjectService`() {
         val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("CodebuffProjectService"),
-            "plugin.xml should declare CodebuffProjectService"
+            "plugin.xml should declare CodebuffProjectService",
         )
         assertTrue(
             content.contains("projectService"),
-            "plugin.xml should use projectService extension"
+            "plugin.xml should use projectService extension",
         )
     }
 
@@ -24,7 +23,7 @@ class ServiceLayerTest {
         val content = TestUtils.loadPluginXml()
         assertTrue(
             content.contains("SessionManager"),
-            "plugin.xml should declare SessionManager"
+            "plugin.xml should declare SessionManager",
         )
     }
 
@@ -50,7 +49,7 @@ class ServiceLayerTest {
     fun `BackendClient interface defines required methods`() {
         val interfaceFile = File("src/main/kotlin/com/codebuff/intellij/backend/BackendClient.kt")
         assertTrue(interfaceFile.exists(), "BackendClient.kt should exist")
-        
+
         val content = interfaceFile.readText()
         assertTrue(content.contains("fun connect"), "BackendClient should have connect method")
         assertTrue(content.contains("fun disconnect"), "BackendClient should have disconnect method")

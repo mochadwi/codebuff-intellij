@@ -5,6 +5,7 @@ plugins {
     // IntelliJ Platform Gradle plugin (new-style)
     id("org.jetbrains.intellij.platform") version "2.0.1"
     kotlin("jvm") version "1.9.24"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 group = "com.codebuff.intellij"

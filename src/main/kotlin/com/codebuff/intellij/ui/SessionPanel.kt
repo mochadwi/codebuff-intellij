@@ -10,7 +10,6 @@ import javax.swing.DefaultListModel
 import javax.swing.JPanel
 
 class SessionPanel(private val project: Project) : JPanel(BorderLayout()), Disposable {
-
     private val listModel = DefaultListModel<String>()
     private val sessionsList = JBList(listModel)
 

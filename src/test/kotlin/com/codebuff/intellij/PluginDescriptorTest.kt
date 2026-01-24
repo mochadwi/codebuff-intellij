@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class PluginDescriptorTest {
-
     @Test
     fun `plugin xml exists in correct location`() {
         val pluginXml = File("src/main/resources/META-INF/plugin.xml")

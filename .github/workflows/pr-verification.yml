@@ -6,10 +6,14 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     name: Build & Test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     
     steps:
       - name: Checkout
@@ -31,6 +35,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Lint (ktlintCheck)
+        run: ./gradlew ktlintCheck --stacktrace
 
       - name: Run Tests
         run: ./gradlew test --stacktrace

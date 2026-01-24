@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class CodebuffToolWindowFactoryTest {
-
     @Test
     fun `tool window extension is declared in plugin xml`() {
         val content = TestUtils.loadPluginXml()
@@ -19,7 +18,7 @@ class CodebuffToolWindowFactoryTest {
 
         assertTrue(
             content.contains("factoryClass=\"com.codebuff.intellij.ui.CodebuffToolWindowFactory\""),
-            "tool window should be wired to CodebuffToolWindowFactory"
+            "tool window should be wired to CodebuffToolWindowFactory",
         )
     }
 
@@ -29,7 +28,7 @@ class CodebuffToolWindowFactoryTest {
 
         assertTrue(
             content.contains("anchor=\"right\""),
-            "tool window should be anchored to the right side of the IDE"
+            "tool window should be anchored to the right side of the IDE",
         )
     }
 }

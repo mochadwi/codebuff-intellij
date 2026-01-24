@@ -16,55 +16,55 @@ import java.awt.BorderLayout
  * Issue: cb-ble.4
  */
 class ChatPanel(private val project: Project) : JPanel(), StreamingEventRouter.EventListener, Disposable {
-    
+
     private val displayArea = JTextArea().apply {
         isEditable = false
         lineWrap = true
         wrapStyleWord = true
     }
     private val scrollPane = JScrollPane(displayArea)
-    
+
     val cancelButton = JButton("Cancel").apply { isVisible = false }
     private var internalLoading = false
     private var internalInputEnabled = true
     private var currentMessage = ""
-    
+
     var isLoading: Boolean
         get() = internalLoading
         set(value) { internalLoading = value }
-    
+
     var isInputEnabled: Boolean
         get() = internalInputEnabled
         set(value) { internalInputEnabled = value }
-    
+
     init {
         layout = BorderLayout()
         add(scrollPane, BorderLayout.CENTER)
         add(cancelButton, BorderLayout.SOUTH)
     }
-    
+
     fun getDisplayText(): String = displayArea.text
-    
+
     @JvmName("updateLoading")
     fun setLoading(loading: Boolean) {
         isLoading = loading
         cancelButton.isVisible = loading
         isInputEnabled = !loading
     }
-    
+
     fun onCancel() {
         isLoading = false
         cancelButton.isVisible = false
         isInputEnabled = true
         currentMessage = ""
     }
-    
+
     fun setCurrentMessage(msg: String) {
         currentMessage = msg
     }
-    
+
     fun getCurrentMessage(): String = currentMessage
-    
+
     // StreamingEventRouter.EventListener implementation
     override fun onToken(event: TokenEvent) {
         displayArea.append(event.text)
@@ -72,31 +72,31 @@ class ChatPanel(private val project: Project) : JPanel(), StreamingEventRouter.E
         isInputEnabled = false
         currentMessage += event.text
     }
-    
+
     override fun onToolCall(event: ToolCallEvent) {
         isLoading = true
         isInputEnabled = false
         displayArea.append("\n[Calling tool: ${event.tool}]\n")
     }
-    
+
     override fun onToolResult(event: ToolResultEvent) {
         // Tool results processed internally, may update display
     }
-    
+
     override fun onDiff(event: DiffEvent) {
         // Diff events routed to diff viewer
     }
-    
+
     override fun onError(event: ErrorEvent) {
         displayArea.append("\n❌ Error: ${event.message}\n")
     }
-    
+
     override fun onDone(event: DoneEvent) {
         isLoading = false
         isInputEnabled = true
         cancelButton.isVisible = false
     }
-    
+
     override fun dispose() {
         // Cleanup resources
     }
