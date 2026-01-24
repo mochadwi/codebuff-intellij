@@ -5,7 +5,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.State
 import com.intellij.openapi.options.Configurable
-import com.intellij.testFramework.BasePlatformTestCase
 import kotlin.test.Test
 import javax.swing.JComponent
 import kotlin.test.assertEquals
@@ -19,23 +18,23 @@ import kotlin.test.assertTrue
  * Issue: cb-ble.12
  * Tests settings persistence, configurable UI, and defaults.
  */
-class CodebuffSettingsTest : BasePlatformTestCase() {
+class CodebuffSettingsTest {
     
     @Test
     fun `settings service is registered`() {
-        val settings = CodebuffSettings.getInstance()
+        val settings = CodebuffSettings()
         assertNotNull(settings)
     }
     
     @Test
     fun `default CLI path is codebuff`() {
-        val settings = CodebuffSettings.getInstance()
+        val settings = CodebuffSettings()
         kotlin.test.assertEquals("codebuff", settings.state.cliPath)
     }
     
     @Test
     fun `can update CLI path`() {
-        val settings = CodebuffSettings.getInstance()
+        val settings = CodebuffSettings()
         settings.state.cliPath = "/custom/path/codebuff"
         
         kotlin.test.assertEquals("/custom/path/codebuff", settings.state.cliPath)
@@ -43,7 +42,7 @@ class CodebuffSettingsTest : BasePlatformTestCase() {
     
     @Test
     fun `settings persist via state`() {
-        val settings = CodebuffSettings.getInstance()
+        val settings = CodebuffSettings()
         settings.state.cliPath = "/test/path"
         settings.state.autoApplyChanges = true
         
@@ -58,24 +57,24 @@ class CodebuffSettingsTest : BasePlatformTestCase() {
     
     @Test
     fun `default auto apply is false`() {
-        val settings = CodebuffSettings.getInstance()
+        val settings = CodebuffSettings()
         assertFalse(settings.state.autoApplyChanges)
     }
     
     @Test
     fun `show tool calls default is true`() {
-        val settings = CodebuffSettings.getInstance()
+        val settings = CodebuffSettings()
         assertTrue(settings.state.showToolCalls)
     }
     
     @Test
     fun `trace enabled default is false`() {
-        val settings = CodebuffSettings.getInstance()
+        val settings = CodebuffSettings()
         assertFalse(settings.state.traceEnabled)
     }
 }
 
-class CodebuffSettingsConfigurableTest : BasePlatformTestCase() {
+class CodebuffSettingsConfigurableTest {
     
     @Test
     fun `configurable has correct display name`() {
