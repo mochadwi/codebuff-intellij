@@ -1,11 +1,10 @@
 package com.codebuff.intellij
 
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class CodebuffToolWindowFactoryTest : BasePlatformTestCase() {
+class CodebuffToolWindowFactoryTest {
 
     @Test
     fun `tool window extension is declared in plugin xml`() {

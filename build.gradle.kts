@@ -1,3 +1,4 @@
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -38,7 +39,15 @@ dependencies {
         intellijIdeaCommunity("2024.2")
         // Tools for bytecode instrumentation and Java compiler used by IntelliJ plugin tests
         instrumentationTools()
+        // Test framework for BasePlatformTestCase and other IntelliJ platform testing utilities
+        testFramework(TestFrameworkType.Platform)
     }
+
+    // JUnit 5 for unit tests (includes API, params, engine)
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+
+    // JUnit 4 required by IntelliJ Platform test runner (JUnit5TestSessionListener needs junit.framework.TestCase)
+    testRuntimeOnly("junit:junit:4.13.2")
 
     // HTTP client
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

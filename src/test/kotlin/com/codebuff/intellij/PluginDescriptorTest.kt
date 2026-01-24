@@ -1,11 +1,10 @@
 package com.codebuff.intellij
 
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class PluginDescriptorTest : BasePlatformTestCase() {
+class PluginDescriptorTest {
 
     @Test
     fun `plugin xml exists in correct location`() {
