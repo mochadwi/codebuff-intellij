@@ -1,0 +1,43 @@
+<idea-plugin>
+    <id>com.codebuff.intellij</id>
+    <name>Codebuff</name>
+    <vendor>Codebuff</vendor>
+    <description>AI coding assistant powered by Codebuff</description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow
+                id="Codebuff"
+                anchor="right"
+                factoryClass="com.codebuff.intellij.ui.CodebuffToolWindowFactory"
+                icon="/icons/codebuff.svg"/>
+
+        <projectService serviceImplementation="com.codebuff.intellij.services.CodebuffProjectService"/>
+        <projectService serviceImplementation="com.codebuff.intellij.services.SessionManager"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.codebuff.intellij.settings.CodebuffSettingsConfigurable"
+                id="com.codebuff.intellij.settings"
+                displayName="Codebuff"/>
+
+        <notificationGroup id="Codebuff" displayType="BALLOON"/>
+    </extensions>
+
+    <actions>
+        <action id="Codebuff.OpenToolWindow"
+                class="com.codebuff.intellij.actions.OpenToolWindowAction"
+                text="Open Codebuff"
+                icon="/icons/codebuff.svg">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift C"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift C"/>
+        </action>
+
+        <action id="Codebuff.SendSelection"
+                class="com.codebuff.intellij.actions.SendSelectionAction"
+                text="Ask Codebuff About Selection">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
