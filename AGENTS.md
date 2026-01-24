@@ -326,6 +326,34 @@ Plugin extends these IntelliJ extension points:
 - `com.intellij.notificationGroup` - Notifications
 - `com.intellij.editorActionHandler` - Editor context actions
 
+## GitHub Actions CI/CD
+
+### PR Verification Workflow
+
+Automatic verification runs on all PRs via `.github/workflows/pr-verification.yml`:
+
+**Steps:**
+1. Setup Java 17 + Gradle with caching
+2. Run tests: `./gradlew test`
+3. Verify plugin: `./gradlew verifyPlugin`
+4. Build plugin: `./gradlew buildPlugin`
+5. Upload artifacts (plugin ZIP, test reports)
+
+**Before Creating a PR:**
+```bash
+docker compose run --rm gradle test          # Must pass
+docker compose run --rm gradle verifyPlugin  # Must pass
+docker compose run --rm gradle buildPlugin   # Must succeed
+```
+
+### PR Template
+
+PRs use `.github/PULL_REQUEST_TEMPLATE.md` with:
+- Summary and changes sections
+- Type of change checkboxes (bug fix, feature, breaking change, etc.)
+- Testing checklist
+- Related issues linking
+
 ## Resources
 
 - [IntelliJ Platform SDK Docs](https://plugins.jetbrains.com/docs/intellij/)
