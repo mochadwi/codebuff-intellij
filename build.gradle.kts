@@ -48,6 +48,13 @@ dependencies {
 
     // JUnit 4 required by IntelliJ Platform test runner (JUnit5TestSessionListener needs junit.framework.TestCase)
     testRuntimeOnly("junit:junit:4.13.2")
+    
+    // Kotlin test assertions and JUnit 4/5 integration
+    testImplementation(kotlin("test"))
+    
+    // MockK for mocking
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk-jvm:1.13.8")
 
     // HTTP client
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
