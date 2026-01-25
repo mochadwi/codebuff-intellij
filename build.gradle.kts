@@ -42,6 +42,9 @@ dependencies {
         instrumentationTools()
         // Test framework for BasePlatformTestCase and other IntelliJ platform testing utilities
         testFramework(TestFrameworkType.Platform)
+
+        // Plugin Verifier for verifyPlugin task
+        pluginVerifier()
     }
 
     // JUnit 5 for unit tests (includes API, params, engine)
@@ -49,10 +52,10 @@ dependencies {
 
     // JUnit 4 required by IntelliJ Platform test runner (JUnit5TestSessionListener needs junit.framework.TestCase)
     testRuntimeOnly("junit:junit:4.13.2")
-    
+
     // Kotlin test assertions and JUnit 4/5 integration
     testImplementation(kotlin("test"))
-    
+
     // MockK for mocking
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("io.mockk:mockk-jvm:1.13.8")
@@ -77,4 +80,13 @@ tasks.test {
     // Tests (including PluginDescriptorTest and CodebuffToolWindowFactoryTest)
     // are executed via Docker: `docker compose run --rm gradle test ...`
     useJUnitPlatform()
+}
+
+// Configure Plugin Verification
+intellijPlatform {
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
 }
