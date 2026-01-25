@@ -41,3 +41,36 @@ sealed class ContextItem {
         val diff: String            // Unified diff format
     ) : ContextItem()
 }
+
+/**
+ * Convert ContextItem to Map<String, Any> for backend protocol
+ */
+fun ContextItem.toProtocolMap(): Map<String, Any> {
+    return when (this) {
+        is ContextItem.Selection -> mapOf(
+            "type" to "selection",
+            "path" to path,
+            "content" to content,
+            "startLine" to startLine,
+            "endLine" to endLine,
+            "language" to language
+        )
+        is ContextItem.File -> mapOf(
+            "type" to "file",
+            "path" to path,
+            "content" to content,
+            "language" to language
+        )
+        is ContextItem.Diagnostic -> mapOf(
+            "type" to "diagnostic",
+            "path" to path,
+            "line" to line,
+            "severity" to severity,
+            "message" to message
+        )
+        is ContextItem.GitDiff -> mapOf(
+            "type" to "diff",
+            "diff" to diff
+        )
+    }
+}
