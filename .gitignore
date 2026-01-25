@@ -29,7 +29,7 @@ Thumbs.db
 
 # Codebuff / agent local data
 # .beads/
-# .agents/
+.agents/
 
 # Docker local overrides / env (keep core Docker files tracked)
 docker-compose.override.yml
