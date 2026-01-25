@@ -41,6 +41,7 @@ sealed class ContextItem {
         val diff: String            // Unified diff format
     ) : ContextItem()
 }
+<<<<<<< HEAD
 
 /**
  * Convert ContextItem to Map<String, Any> for backend protocol
@@ -74,3 +75,5 @@ fun ContextItem.toProtocolMap(): Map<String, Any> {
         )
     }
 }
+=======
+>>>>>>> cb00d6f ([cb-0jl.6] Write tests for ContextCollector service (RED phase))
