@@ -1,11 +1,10 @@
 package com.codebuff.intellij
 
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
 import java.io.File
 
 class BuildConfigurationTest {
-
     @Test
     fun `build gradle kts exists and is valid`() {
         val buildFile = File("build.gradle.kts")
@@ -25,8 +24,10 @@ class BuildConfigurationTest {
         val propsFile = File("gradle.properties")
         assertTrue(propsFile.exists())
         val content = propsFile.readText()
-        assertTrue(content.contains("kotlin.jvmTarget=17") ||
-                   content.contains("jvmToolchain(17)"))
+        assertTrue(
+            content.contains("kotlin.jvmTarget=17") ||
+                content.contains("jvmToolchain(17)"),
+        )
     }
 
     @Test

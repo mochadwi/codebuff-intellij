@@ -10,8 +10,12 @@ import kotlinx.coroutines.flow.Flow
  */
 interface BackendClient {
     suspend fun connect()
+
     suspend fun disconnect()
+
     suspend fun sendMessage(request: SendMessageRequest): Flow<BackendEvent>
+
     suspend fun cancel(sessionId: String)
+
     val isConnected: Boolean
 }

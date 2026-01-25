@@ -98,6 +98,20 @@ Communication via `codebuff ide --stdio` using JSON Lines:
 
 ## Git Workflow
 
+### Git Hooks Setup
+
+After cloning, run once to enable git hooks:
+```bash
+./scripts/setup-hooks.sh
+```
+
+This sets `core.hooksPath` to `.githooks/`, which works across all worktrees.
+
+**Pre-commit hook:** Runs ktlint on staged Kotlin files automatically.
+
+Bypass when needed: `git commit --no-verify`
+
+
 ### Feature Branch Strategy
 All development uses feature branches merged to main:
 
@@ -155,3 +169,38 @@ git worktree remove ../worktrees/<epic-id>
 5. Push to remote: `git pull --rebase && bd sync && git push`
 6. Clean up worktrees (if epic merged): `git worktree remove ../worktrees/<epic-id>`
 7. Verify `git status` shows "up to date with origin"
+
+## GitHub Actions CI/CD
+
+### PR Verification Workflow
+
+All pull requests trigger automatic verification via `.github/workflows/pr-verification.yml`:
+
+**Workflow Steps:**
+1. Checkout with full history
+2. Setup Java 17 (Zulu distribution)
+3. Validate Gradle wrapper integrity
+4. Setup Gradle with caching
+5. Run tests (`./gradlew test`)
+6. Verify plugin compatibility (`./gradlew verifyPlugin`)
+7. Build plugin (`./gradlew buildPlugin`)
+8. Upload plugin artifact (ZIP)
+9. Upload test reports on failure
+
+> **Note:** ktlint runs locally via pre-commit hooks (not in CI) for faster builds.
+
+**Triggers:**
+- `pull_request` to `main` branch
+- `push` to `main` branch
+
+**Artifacts:**
+- Plugin ZIP: `codebuff-intellij-plugin` (14-day retention)
+- Test reports: `test-reports` (7-day retention, on failure only)
+
+### PR Template
+
+Use `.github/PULL_REQUEST_TEMPLATE.md` when creating PRs. It includes:
+- Summary and changes sections
+- Type of change checkboxes
+- Testing checklist
+- Related issues linking

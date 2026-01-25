@@ -141,6 +141,26 @@ All services are **Project-level** (`@Service(Service.Level.PROJECT)`):
 
 ## Git Workflow
 
+### Git Hooks (Pre-commit)
+
+The project uses tracked Git hooks in `.githooks/` directory for code quality enforcement.
+
+**Setup (one-time after clone):**
+```bash
+./scripts/setup-hooks.sh
+```
+
+This configures `core.hooksPath` to use `.githooks/`, which works across all worktrees.
+
+**Available Hooks:**
+- `pre-commit` - Runs ktlint on staged Kotlin files before commit
+
+**Bypass when needed:**
+```bash
+git commit --no-verify  # Skip hooks for this commit
+```
+
+
 ### Feature Branch Strategy
 
 All development uses feature branches merged to main:
@@ -325,6 +345,36 @@ Plugin extends these IntelliJ extension points:
 - `com.intellij.applicationConfigurable` - Settings page
 - `com.intellij.notificationGroup` - Notifications
 - `com.intellij.editorActionHandler` - Editor context actions
+
+## GitHub Actions CI/CD
+
+### PR Verification Workflow
+
+Automatic verification runs on all PRs via `.github/workflows/pr-verification.yml`:
+
+**Steps:**
+1. Setup Java 17 + Gradle with caching
+2. Run tests: `./gradlew test`
+3. Verify plugin: `./gradlew verifyPlugin`
+4. Build plugin: `./gradlew buildPlugin`
+5. Upload artifacts (plugin ZIP, test reports)
+
+> **Note:** ktlint is enforced via pre-commit hooks, not in CI, to reduce build time.
+
+**Before Creating a PR:**
+```bash
+docker compose run --rm gradle test          # Must pass
+docker compose run --rm gradle verifyPlugin  # Must pass
+docker compose run --rm gradle buildPlugin   # Must succeed
+```
+
+### PR Template
+
+PRs use `.github/PULL_REQUEST_TEMPLATE.md` with:
+- Summary and changes sections
+- Type of change checkboxes (bug fix, feature, breaking change, etc.)
+- Testing checklist
+- Related issues linking
 
 ## Resources
 

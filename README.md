@@ -35,6 +35,16 @@ cd codebuff-intellij
 
 Then install the plugin from `build/distributions/codebuff-intellij-*.zip`.
 
+### Setup Git Hooks
+
+After cloning, configure Git to use the project's hooks:
+
+```bash
+./scripts/setup-hooks.sh
+```
+
+This enables pre-commit hooks that run ktlint automatically before each commit.
+
 ## Usage
 
 ### Quick Start

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class PluginDescriptorTest {
-
     @Test
     fun `plugin xml exists in correct location`() {
         val pluginXml = File("src/main/resources/META-INF/plugin.xml")
@@ -15,7 +14,7 @@ class PluginDescriptorTest {
     @Test
     fun `plugin id is correctly configured`() {
         val content = TestUtils.loadPluginXml()
-        assertTrue(content.contains("<id>com.codebuff.intellij</id>"), "plugin.xml should have correct id")
+        assertTrue(content.contains("<id>com.codebuff.plugin</id>"), "plugin.xml should have correct id")
     }
 
     @Test

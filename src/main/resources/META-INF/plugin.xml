@@ -1,8 +1,8 @@
 <idea-plugin>
-    <id>com.codebuff.intellij</id>
+    <id>com.codebuff.plugin</id>
     <name>Codebuff</name>
     <vendor>Codebuff</vendor>
-    <description>AI coding assistant powered by Codebuff</description>
+    <description>Codebuff is an AI coding assistant that helps developers write, understand, and improve code directly within IntelliJ IDEA.</description>
 
     <depends>com.intellij.modules.platform</depends>
 
