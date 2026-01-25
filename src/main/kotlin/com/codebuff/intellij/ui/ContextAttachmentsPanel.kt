@@ -1,65 +1,101 @@
 package com.codebuff.intellij.ui
 
 import com.codebuff.intellij.model.ContextItem
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBPanel
+import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.components.BorderLayoutPanel
+import javax.swing.AbstractListModel
 import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JScrollPane
+import javax.swing.ListCellRenderer
 import javax.swing.border.EmptyBorder
 
 /**
  * UI panel for managing context attachments
  * Displays attached files, selections, diagnostics, and diffs
+ *
+ * Thread-safety: All mutations must occur on the EDT
  */
-class ContextAttachmentsPanel : JBPanel<ContextAttachmentsPanel>() {
+class ContextAttachmentsPanel : BorderLayoutPanel() {
     private val attachments = mutableListOf<ContextItem>()
-    private val listPanel = JBPanel<JBPanel<*>>()
+    private val model = ContextItemListModel()
+    private val list = JBList(model)
     private val countLabel = JLabel("0 attachments")
 
     init {
-        layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        border = EmptyBorder(8, 8, 8, 8)
+        border = JBUI.Borders.empty(8)
 
-        // Header
-        val headerPanel = JBPanel<JBPanel<*>>()
-        headerPanel.layout = BoxLayout(headerPanel, BoxLayout.X_AXIS)
+        // Configure list renderer
+        list.apply {
+            cellRenderer = ContextItemCellRenderer()
+            emptyText.text = "No context attachments"
+        }
+
+        // Header panel
+        val headerPanel = JBPanel<BorderLayoutPanel>().apply {
+            layout = BoxLayout(this, BoxLayout.X_AXIS)
+            border = EmptyBorder(0, 0, 4, 0)
+        }
         headerPanel.add(JLabel("Context Attachments"))
         headerPanel.add(javax.swing.Box.createHorizontalGlue())
         headerPanel.add(countLabel)
 
-        // List area
-        listPanel.layout = BoxLayout(listPanel, BoxLayout.Y_AXIS)
-        val scrollPane = JScrollPane(listPanel)
+        // Scroll pane for list
+        val scrollPane = JScrollPane(list).apply {
+            preferredSize = JBUI.size(400, 200)
+        }
 
-        // Buttons
-        val buttonPanel = JBPanel<JBPanel<*>>()
-        buttonPanel.layout = BoxLayout(buttonPanel, BoxLayout.X_AXIS)
+        // Button panel
+        val buttonPanel = JBPanel<BorderLayoutPanel>().apply {
+            layout = BoxLayout(this, BoxLayout.X_AXIS)
+            border = EmptyBorder(4, 0, 0, 0)
+        }
+        val removeBtn = JButton("Remove")
+        removeBtn.addActionListener { removeSelected() }
         val clearBtn = JButton("Clear All")
         clearBtn.addActionListener { clear() }
-        buttonPanel.add(javax.swing.Box.createHorizontalGlue())
+        buttonPanel.add(removeBtn)
+        buttonPanel.add(javax.swing.Box.createHorizontalStrut(4))
         buttonPanel.add(clearBtn)
+        buttonPanel.add(javax.swing.Box.createHorizontalGlue())
 
-        add(headerPanel)
-        add(scrollPane)
-        add(buttonPanel)
+        // Layout
+        addToTop(headerPanel)
+        addToCenter(scrollPane)
+        addToBottom(buttonPanel)
     }
 
     fun addAttachment(item: ContextItem) {
-        attachments.add(item)
-        refreshUI()
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        model.addItem(item)
+        updateCount()
+    }
+
+    fun removeSelected() {
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        val index = list.selectedIndex
+        if (index >= 0) {
+            model.removeItemAt(index)
+            updateCount()
+        }
     }
 
     fun removeAttachment(index: Int) {
+        ApplicationManager.getApplication().assertIsDispatchThread()
         if (index in attachments.indices) {
-            attachments.removeAt(index)
-            refreshUI()
+            model.removeItemAt(index)
+            updateCount()
         }
     }
 
     fun clear() {
-        attachments.clear()
-        refreshUI()
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        model.clear()
+        updateCount()
     }
 
     fun getAttachments(): List<ContextItem> = attachments.toList()
@@ -68,13 +104,7 @@ class ContextAttachmentsPanel : JBPanel<ContextAttachmentsPanel>() {
 
     fun getDisplayText(index: Int): String {
         if (index !in attachments.indices) return ""
-        val item = attachments[index]
-        return when (item) {
-            is ContextItem.Selection -> "${item.path} (lines ${item.startLine}-${item.endLine})"
-            is ContextItem.File -> "${item.path} (${formatFileSize(item.content.length.toLong())})"
-            is ContextItem.Diagnostic -> "${item.path}:${item.line} [${item.severity}]"
-            is ContextItem.GitDiff -> "Git Diff"
-        }
+        return formatAttachmentText(attachments[index])
     }
 
     fun formatFileSize(bytes: Long): String {
@@ -85,10 +115,66 @@ class ContextAttachmentsPanel : JBPanel<ContextAttachmentsPanel>() {
         }
     }
 
-    private fun refreshUI() {
-        countLabel.text = "${attachments.size} attachment${if (attachments.size != 1) "s" else ""}"
-        listPanel.removeAll()
-        listPanel.revalidate()
-        listPanel.repaint()
+    private fun updateCount() {
+        val count = attachments.size
+        countLabel.text = "$count attachment" + if (count == 1) "" else "s"
+    }
+
+    private fun formatAttachmentText(item: ContextItem): String {
+        return when (item) {
+            is ContextItem.Selection -> "${item.path}:${item.startLine}-${item.endLine}"
+            is ContextItem.File -> "${item.path} (${formatFileSize(item.content.length.toLong())})"
+            is ContextItem.Diagnostic -> "${item.path}:${item.line} [${item.severity}] ${item.message}"
+            is ContextItem.GitDiff -> "Git Diff (${item.diff.length} bytes)"
+        }
+    }
+
+    /**
+     * Custom list model for ContextItems
+     */
+    private inner class ContextItemListModel : AbstractListModel<ContextItem>() {
+        fun addItem(item: ContextItem) {
+            attachments.add(item)
+            fireIntervalAdded(this, attachments.size - 1, attachments.size - 1)
+        }
+
+        fun removeItemAt(index: Int) {
+            if (index in attachments.indices) {
+                attachments.removeAt(index)
+                fireIntervalRemoved(this, index, index)
+            }
+        }
+
+        fun clear() {
+            val size = attachments.size
+            attachments.clear()
+            if (size > 0) {
+                fireIntervalRemoved(this, 0, size - 1)
+            }
+        }
+
+        override fun getSize(): Int = attachments.size
+
+        override fun getElementAt(index: Int): ContextItem = attachments[index]
+    }
+
+    /**
+     * Custom cell renderer for ContextItems
+     */
+    private inner class ContextItemCellRenderer : ListCellRenderer<ContextItem> {
+        override fun getListCellRendererComponent(
+            list: javax.swing.JList<out ContextItem>,
+            value: ContextItem,
+            index: Int,
+            isSelected: Boolean,
+            cellHasFocus: Boolean
+        ): java.awt.Component {
+            val label = JLabel(formatAttachmentText(value))
+            label.isOpaque = true
+            label.background = if (isSelected) list.selectionBackground else list.background
+            label.foreground = if (isSelected) list.selectionForeground else list.foreground
+            label.border = EmptyBorder(4, 4, 4, 4)
+            return label
+        }
     }
 }
