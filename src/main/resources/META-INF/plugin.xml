@@ -24,6 +24,8 @@
                 displayName="Codebuff"/>
 
         <notificationGroup id="Codebuff" displayType="BALLOON"/>
+
+        <diff.actionProvider order="first" implementation="com.codebuff.intellij.diff.CodebuffDiffActionProvider"/>
     </extensions>
 
     <actions>
@@ -39,6 +41,30 @@
                 class="com.codebuff.intellij.actions.SendSelectionAction"
                 text="Ask Codebuff About Selection">
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+
+        <action id="Codebuff.AcceptDiff"
+                class="com.codebuff.intellij.diff.AcceptDiffAction"
+                text="Accept Change"
+                description="Apply this change">
+            <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ENTER"/>
+        </action>
+
+        <action id="Codebuff.RejectDiff"
+                class="com.codebuff.intellij.diff.RejectDiffAction"
+                text="Reject Change"
+                description="Discard this change">
+            <keyboard-shortcut keymap="$default" first-keystroke="ESCAPE"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ESCAPE"/>
+        </action>
+
+        <action id="Codebuff.AcceptAllDiffs"
+                class="com.codebuff.intellij.diff.AcceptAllAction"
+                text="Accept All Changes"
+                description="Apply all changes">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift ENTER"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
         </action>
     </actions>
 </idea-plugin>
