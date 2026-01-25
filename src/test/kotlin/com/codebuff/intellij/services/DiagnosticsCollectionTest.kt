@@ -11,17 +11,17 @@ import kotlin.test.assertTrue
  * RED Phase: All tests should fail initially
  */
 class DiagnosticsCollectionTest {
-
     // ============ Diagnostic Severity Tests ============
 
     @Test
     fun `Diagnostic with error severity`() {
-        val diagnostic = ContextItem.Diagnostic(
-            path = "src/Main.kt",
-            line = 5,
-            severity = "error",
-            message = "Type mismatch: expected Int, got String"
-        )
+        val diagnostic =
+            ContextItem.Diagnostic(
+                path = "src/Main.kt",
+                line = 5,
+                severity = "error",
+                message = "Type mismatch: expected Int, got String",
+            )
 
         assertEquals("error", diagnostic.severity)
         assertEquals("src/Main.kt", diagnostic.path)
@@ -30,12 +30,13 @@ class DiagnosticsCollectionTest {
 
     @Test
     fun `Diagnostic with warning severity`() {
-        val diagnostic = ContextItem.Diagnostic(
-            path = "src/Helper.kt",
-            line = 10,
-            severity = "warning",
-            message = "Variable 'unused' is never used"
-        )
+        val diagnostic =
+            ContextItem.Diagnostic(
+                path = "src/Helper.kt",
+                line = 10,
+                severity = "warning",
+                message = "Variable 'unused' is never used",
+            )
 
         assertEquals("warning", diagnostic.severity)
         assertTrue(diagnostic.message.contains("unused"))
@@ -43,12 +44,13 @@ class DiagnosticsCollectionTest {
 
     @Test
     fun `Diagnostic with info severity`() {
-        val diagnostic = ContextItem.Diagnostic(
-            path = "src/Utils.kt",
-            line = 15,
-            severity = "info",
-            message = "Consider using named parameters"
-        )
+        val diagnostic =
+            ContextItem.Diagnostic(
+                path = "src/Utils.kt",
+                line = 15,
+                severity = "info",
+                message = "Consider using named parameters",
+            )
 
         assertEquals("info", diagnostic.severity)
     }
@@ -57,36 +59,39 @@ class DiagnosticsCollectionTest {
 
     @Test
     fun `Diagnostic tracks exact line number`() {
-        val diag = ContextItem.Diagnostic(
-            path = "file.kt",
-            line = 42,
-            severity = "error",
-            message = "Syntax error"
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "file.kt",
+                line = 42,
+                severity = "error",
+                message = "Syntax error",
+            )
 
         assertEquals(42, diag.line)
     }
 
     @Test
     fun `Diagnostic with line 1`() {
-        val diag = ContextItem.Diagnostic(
-            path = "file.kt",
-            line = 1,
-            severity = "error",
-            message = "First line error"
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "file.kt",
+                line = 1,
+                severity = "error",
+                message = "First line error",
+            )
 
         assertEquals(1, diag.line)
     }
 
     @Test
     fun `Diagnostic with large line number`() {
-        val diag = ContextItem.Diagnostic(
-            path = "file.kt",
-            line = 10000,
-            severity = "error",
-            message = "Error at end of file"
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "file.kt",
+                line = 10000,
+                severity = "error",
+                message = "Error at end of file",
+            )
 
         assertEquals(10000, diag.line)
     }
@@ -96,12 +101,13 @@ class DiagnosticsCollectionTest {
     @Test
     fun `Diagnostic stores full error message`() {
         val fullMessage = "Type mismatch: expected List<String>, got List<Int>"
-        val diag = ContextItem.Diagnostic(
-            path = "file.kt",
-            line = 5,
-            severity = "error",
-            message = fullMessage
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "file.kt",
+                line = 5,
+                severity = "error",
+                message = fullMessage,
+            )
 
         assertEquals(fullMessage, diag.message)
     }
@@ -109,12 +115,13 @@ class DiagnosticsCollectionTest {
     @Test
     fun `Diagnostic with multiline message support`() {
         val message = "Error in function foo:\n  Expected: Int\n  Got: String"
-        val diag = ContextItem.Diagnostic(
-            path = "file.kt",
-            line = 5,
-            severity = "error",
-            message = message
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "file.kt",
+                line = 5,
+                severity = "error",
+                message = message,
+            )
 
         assertTrue(diag.message.contains("\n"))
         assertTrue(diag.message.contains("Expected"))
@@ -122,12 +129,13 @@ class DiagnosticsCollectionTest {
 
     @Test
     fun `Diagnostic with empty message`() {
-        val diag = ContextItem.Diagnostic(
-            path = "file.kt",
-            line = 5,
-            severity = "error",
-            message = ""
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "file.kt",
+                line = 5,
+                severity = "error",
+                message = "",
+            )
 
         assertEquals("", diag.message)
     }
@@ -136,24 +144,26 @@ class DiagnosticsCollectionTest {
 
     @Test
     fun `Diagnostic with relative path`() {
-        val diag = ContextItem.Diagnostic(
-            path = "src/main/kotlin/App.kt",
-            line = 1,
-            severity = "error",
-            message = "Error"
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "src/main/kotlin/App.kt",
+                line = 1,
+                severity = "error",
+                message = "Error",
+            )
 
         assertEquals("src/main/kotlin/App.kt", diag.path)
     }
 
     @Test
     fun `Diagnostic with simple filename`() {
-        val diag = ContextItem.Diagnostic(
-            path = "Main.kt",
-            line = 1,
-            severity = "error",
-            message = "Error"
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "Main.kt",
+                line = 1,
+                severity = "error",
+                message = "Error",
+            )
 
         assertEquals("Main.kt", diag.path)
     }
@@ -188,11 +198,12 @@ class DiagnosticsCollectionTest {
 
     @Test
     fun `Multiple diagnostics can be collected in list`() {
-        val diagnostics = listOf(
-            ContextItem.Diagnostic("file.kt", 1, "error", "Error 1"),
-            ContextItem.Diagnostic("file.kt", 5, "warning", "Warning 1"),
-            ContextItem.Diagnostic("file.kt", 10, "info", "Info 1")
-        )
+        val diagnostics =
+            listOf(
+                ContextItem.Diagnostic("file.kt", 1, "error", "Error 1"),
+                ContextItem.Diagnostic("file.kt", 5, "warning", "Warning 1"),
+                ContextItem.Diagnostic("file.kt", 10, "info", "Info 1"),
+            )
 
         assertEquals(3, diagnostics.size)
         assertEquals("error", diagnostics[0].severity)

@@ -11,19 +11,19 @@ import kotlin.test.assertTrue
  * RED Phase: All tests should fail initially
  */
 class GitDiffCollectionTest {
-
     // ============ Unified Diff Format Tests ============
 
     @Test
     fun `GitDiff with unified diff format headers`() {
-        val diff = """
+        val diff =
+            """
             --- a/src/main.kt
             +++ b/src/main.kt
             @@ -1,3 +1,4 @@
              fun main() {
             +    println("hello")
                  val x = 1
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diff)
 
@@ -34,14 +34,15 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff with file addition`() {
-        val diff = """
+        val diff =
+            """
             --- /dev/null
             +++ b/new_file.kt
             @@ -0,0 +1,5 @@
             +fun newFunction() {
             +    return 42
             +}
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diff)
 
@@ -51,14 +52,15 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff with file deletion`() {
-        val diff = """
+        val diff =
+            """
             --- a/old_file.kt
             +++ /dev/null
             @@ -1,3 +0,0 @@
             -fun oldFunction() {
             -    return null
             -}
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diff)
 
@@ -70,13 +72,14 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff tracks added lines with plus prefix`() {
-        val diff = """
+        val diff =
+            """
             --- a/file.kt
             +++ b/file.kt
              existing line
             +new added line
              another existing line
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diff)
 
@@ -85,13 +88,14 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff tracks removed lines with minus prefix`() {
-        val diff = """
+        val diff =
+            """
             --- a/file.kt
             +++ b/file.kt
              existing line
             -removed line
              another existing line
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diff)
 
@@ -100,7 +104,8 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff with multiple hunks`() {
-        val diff = """
+        val diff =
+            """
             --- a/file.kt
             +++ b/file.kt
             @@ -1,3 +1,4 @@
@@ -111,7 +116,7 @@ class GitDiffCollectionTest {
              line 10
             +inserted 2
              line 11
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diff)
 
@@ -139,7 +144,8 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff preserves complete diff content`() {
-        val diffContent = """
+        val diffContent =
+            """
             --- a/src/App.kt
             +++ b/src/App.kt
             @@ -5,6 +5,7 @@ class Application {
@@ -147,7 +153,7 @@ class GitDiffCollectionTest {
             +        logger.info("Starting app")
                      val config = loadConfig()
                      initialize(config)
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diffContent)
 
@@ -156,10 +162,11 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff with binary file markers`() {
-        val diff = """
+        val diff =
+            """
             diff --git a/image.png b/image.png
             Binary files a/image.png and b/image.png differ
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diff)
 
@@ -188,7 +195,8 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff with multiple files`() {
-        val diff = """
+        val diff =
+            """
             diff --git a/file1.kt b/file1.kt
             --- a/file1.kt
             +++ b/file1.kt
@@ -201,7 +209,7 @@ class GitDiffCollectionTest {
             @@ -1,2 +1,2 @@
             -removed
             +added
-        """.trimIndent()
+            """.trimIndent()
 
         val gitDiff = ContextItem.GitDiff(diff = diff)
 
@@ -231,10 +239,11 @@ class GitDiffCollectionTest {
 
     @Test
     fun `GitDiff can be collected in lists`() {
-        val diffs = listOf(
-            ContextItem.GitDiff(diff = "--- a/f1\n+++ b/f1"),
-            ContextItem.GitDiff(diff = "--- a/f2\n+++ b/f2")
-        )
+        val diffs =
+            listOf(
+                ContextItem.GitDiff(diff = "--- a/f1\n+++ b/f1"),
+                ContextItem.GitDiff(diff = "--- a/f2\n+++ b/f2"),
+            )
 
         assertEquals(2, diffs.size)
     }

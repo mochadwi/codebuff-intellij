@@ -3,8 +3,6 @@ package com.codebuff.intellij.services
 import com.codebuff.intellij.model.ContextItem
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -13,19 +11,19 @@ import kotlin.test.assertTrue
  * RED Phase: All tests should fail initially
  */
 class ContextCollectorTest {
-
     // ============ Selection Context Tests ============
 
     @Test
     fun `Selection creation with valid data`() {
-        val selection = ContextItem.Selection(
-            path = "src/Main.kt",
-            content = "fun main() {}",
-            startLine = 1,
-            endLine = 1,
-            language = "kotlin"
-        )
-        
+        val selection =
+            ContextItem.Selection(
+                path = "src/Main.kt",
+                content = "fun main() {}",
+                startLine = 1,
+                endLine = 1,
+                language = "kotlin",
+            )
+
         assertEquals("src/Main.kt", selection.path)
         assertEquals("fun main() {}", selection.content)
         assertEquals(1, selection.startLine)
@@ -35,14 +33,15 @@ class ContextCollectorTest {
 
     @Test
     fun `Selection supports multiline range`() {
-        val selection = ContextItem.Selection(
-            path = "File.kt",
-            content = "line1\nline2\nline3",
-            startLine = 10,
-            endLine = 15,
-            language = "kotlin"
-        )
-        
+        val selection =
+            ContextItem.Selection(
+                path = "File.kt",
+                content = "line1\nline2\nline3",
+                startLine = 10,
+                endLine = 15,
+                language = "kotlin",
+            )
+
         assertEquals(10, selection.startLine)
         assertEquals(15, selection.endLine)
         assertTrue(selection.content.contains("\n"))
@@ -53,7 +52,7 @@ class ContextCollectorTest {
         val sel1 = ContextItem.Selection("path.kt", "code", 1, 2, "kotlin")
         val sel2 = ContextItem.Selection("path.kt", "code", 1, 2, "kotlin")
         val sel3 = ContextItem.Selection("path.kt", "code", 1, 3, "kotlin")
-        
+
         assertEquals(sel1, sel2)
         assertTrue(sel1 != sel3)
     }
@@ -62,12 +61,13 @@ class ContextCollectorTest {
 
     @Test
     fun `File creation with valid data`() {
-        val file = ContextItem.File(
-            path = "src/utils/Helper.kt",
-            content = "object Helper { }",
-            language = "kotlin"
-        )
-        
+        val file =
+            ContextItem.File(
+                path = "src/utils/Helper.kt",
+                content = "object Helper { }",
+                language = "kotlin",
+            )
+
         assertEquals("src/utils/Helper.kt", file.path)
         assertEquals("object Helper { }", file.content)
         assertEquals("kotlin", file.language)
@@ -76,12 +76,13 @@ class ContextCollectorTest {
     @Test
     fun `File supports large content`() {
         val largeContent = "x".repeat(100_000)
-        val file = ContextItem.File(
-            path = "large.txt",
-            content = largeContent,
-            language = "text"
-        )
-        
+        val file =
+            ContextItem.File(
+                path = "large.txt",
+                content = largeContent,
+                language = "text",
+            )
+
         assertEquals(largeContent.length, file.content.length)
     }
 
@@ -90,7 +91,7 @@ class ContextCollectorTest {
         val file1 = ContextItem.File("path.kt", "code", "kotlin")
         val file2 = ContextItem.File("path.kt", "code", "kotlin")
         val file3 = ContextItem.File("other.kt", "code", "kotlin")
-        
+
         assertEquals(file1, file2)
         assertTrue(file1 != file3)
     }
@@ -99,13 +100,14 @@ class ContextCollectorTest {
 
     @Test
     fun `Diagnostic creation with error severity`() {
-        val diag = ContextItem.Diagnostic(
-            path = "src/Main.kt",
-            line = 10,
-            severity = "error",
-            message = "Type mismatch"
-        )
-        
+        val diag =
+            ContextItem.Diagnostic(
+                path = "src/Main.kt",
+                line = 10,
+                severity = "error",
+                message = "Type mismatch",
+            )
+
         assertEquals("src/Main.kt", diag.path)
         assertEquals(10, diag.line)
         assertEquals("error", diag.severity)
@@ -117,7 +119,7 @@ class ContextCollectorTest {
         val error = ContextItem.Diagnostic("f.kt", 1, "error", "msg")
         val warning = ContextItem.Diagnostic("f.kt", 1, "warning", "msg")
         val info = ContextItem.Diagnostic("f.kt", 1, "info", "msg")
-        
+
         assertEquals("error", error.severity)
         assertEquals("warning", warning.severity)
         assertEquals("info", info.severity)
@@ -127,10 +129,11 @@ class ContextCollectorTest {
 
     @Test
     fun `GitDiff creation with diff content`() {
-        val diff = ContextItem.GitDiff(
-            diff = "--- a/file.txt\n+++ b/file.txt\n@@ -1,1 +1,2 @@\n line\n+new"
-        )
-        
+        val diff =
+            ContextItem.GitDiff(
+                diff = "--- a/file.txt\n+++ b/file.txt\n@@ -1,1 +1,2 @@\n line\n+new",
+            )
+
         assertTrue(diff.diff.contains("---"))
         assertTrue(diff.diff.contains("+++"))
         assertTrue(diff.diff.contains("@@"))
@@ -139,7 +142,7 @@ class ContextCollectorTest {
     @Test
     fun `GitDiff empty diff is valid`() {
         val emptyDiff = ContextItem.GitDiff(diff = "")
-        
+
         assertEquals("", emptyDiff.diff)
     }
 
@@ -147,13 +150,14 @@ class ContextCollectorTest {
 
     @Test
     fun `Context items are polymorphic`() {
-        val items: List<ContextItem> = listOf(
-            ContextItem.Selection("s.kt", "code", 1, 2, "kotlin"),
-            ContextItem.File("f.kt", "content", "kotlin"),
-            ContextItem.Diagnostic("d.kt", 5, "error", "msg"),
-            ContextItem.GitDiff("diff content")
-        )
-        
+        val items: List<ContextItem> =
+            listOf(
+                ContextItem.Selection("s.kt", "code", 1, 2, "kotlin"),
+                ContextItem.File("f.kt", "content", "kotlin"),
+                ContextItem.Diagnostic("d.kt", 5, "error", "msg"),
+                ContextItem.GitDiff("diff content"),
+            )
+
         assertEquals(4, items.size)
         assertTrue(items[0] is ContextItem.Selection)
         assertTrue(items[1] is ContextItem.File)

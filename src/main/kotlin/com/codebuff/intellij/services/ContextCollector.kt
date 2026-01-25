@@ -7,12 +7,14 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiManager
-
+import java.io.IOException
 
 private val LOG = Logger.getInstance(ContextCollector::class.java)
 
@@ -25,7 +27,6 @@ private val LOG = Logger.getInstance(ContextCollector::class.java)
  */
 @Service(Service.Level.PROJECT)
 class ContextCollector(private val project: Project) {
-
     companion object {
         const val MAX_FILE_SIZE = 1024 * 1024 // 1MB
         const val MAX_SELECTION_SIZE = 100_000 // 100KB - prevent huge payloads
@@ -64,18 +65,23 @@ class ContextCollector(private val project: Project) {
         val startLine = document.getLineNumber(startOffset) + 1
         val endLine = document.getLineNumber(endOffsetForLine) + 1
 
-        return ReadAction.compute<ContextItem.Selection?, RuntimeException> {
-            val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
-                ?: file?.let { PsiManager.getInstance(project).findFile(it) }
+        // Get language: prefer cheap fileType first, fall back to PSI if needed
+        val languageFromFileType = file?.fileType?.name?.lowercase() ?: "text"
+        val language =
+            ReadAction.compute<String, RuntimeException> {
+                val psiFile =
+                    PsiDocumentManager.getInstance(project).getPsiFile(document)
+                        ?: file?.let { PsiManager.getInstance(project).findFile(it) }
+                psiFile?.language?.id ?: languageFromFileType
+            }
 
-            ContextItem.Selection(
-                path = file?.let { getRelativePath(it) } ?: "untitled",
-                content = normalizedText,
-                startLine = startLine,
-                endLine = endLine,
-                language = psiFile?.language?.id ?: "text"
-            )
-        }
+        return ContextItem.Selection(
+            path = file?.let { getRelativePath(it) } ?: "untitled",
+            content = normalizedText,
+            startLine = startLine,
+            endLine = endLine,
+            language = language,
+        )
     }
 
     /**
@@ -113,30 +119,42 @@ class ContextCollector(private val project: Project) {
         }
 
         // Load file content, respecting charset
-        val content = try {
-            VfsUtilCore.loadText(virtualFile)
-        } catch (t: Throwable) {
-            LOG.warn("Failed to load file content: ${virtualFile.path}", t)
-            return null
-        }
+        // Never swallow ProcessCanceledException - it breaks IntelliJ's cancellation semantics
+        val content =
+            try {
+                VfsUtilCore.loadText(virtualFile)
+            } catch (e: ProcessCanceledException) {
+                throw e
+            } catch (e: IOException) {
+                LOG.warn("Failed to load file content: ${virtualFile.path}", e)
+                return null
+            } catch (e: Exception) {
+                LOG.warn("Unexpected error loading file: ${virtualFile.path}", e)
+                return null
+            }
 
-        // PSI lookup under read action
-        return ReadAction.compute<ContextItem.File?, RuntimeException> {
-            val psiFile = PsiManager.getInstance(project).findFile(virtualFile)
+        // PSI lookup under read action for accurate language detection
+        val languageFromFileType = virtualFile.fileType.name.lowercase()
+        val language =
+            ReadAction.compute<String, RuntimeException> {
+                val psiFile = PsiManager.getInstance(project).findFile(virtualFile)
+                psiFile?.language?.id ?: languageFromFileType
+            }
 
-            ContextItem.File(
-                path = getRelativePath(virtualFile),
-                content = content,
-                language = psiFile?.language?.id ?: "text"
-            )
-        }
+        return ContextItem.File(
+            path = getRelativePath(virtualFile),
+            content = content,
+            language = language,
+        )
     }
 
     /**
      * Collect diagnostics/inspections for a file
      * @return List of diagnostic context items
      */
-    fun collectDiagnostics(@Suppress("UNUSED_PARAMETER") file: VirtualFile): List<ContextItem.Diagnostic> {
+    fun collectDiagnostics(
+        @Suppress("UNUSED_PARAMETER") file: VirtualFile,
+    ): List<ContextItem.Diagnostic> {
         // TODO: Implement diagnostics collection in separate task
         return emptyList()
     }
@@ -152,22 +170,14 @@ class ContextCollector(private val project: Project) {
 
     /**
      * Get relative path from project root
-     * Handles Windows paths and symlinks correctly
+     * Uses guessProjectDir which handles symlinks and content roots correctly
      */
     private fun getRelativePath(file: VirtualFile): String {
-        @Suppress("DEPRECATION")
-        val baseDir = project.baseDir
+        val baseDir = project.guessProjectDir()
         return if (baseDir != null) {
             VfsUtilCore.getRelativePath(file, baseDir) ?: file.path
         } else {
-            project.basePath?.let { basePath ->
-                val path = file.path
-                if (path.startsWith(basePath)) {
-                    path.removePrefix(basePath).removePrefix("/")
-                } else {
-                    path
-                }
-            } ?: file.path
+            file.path
         }
     }
 }

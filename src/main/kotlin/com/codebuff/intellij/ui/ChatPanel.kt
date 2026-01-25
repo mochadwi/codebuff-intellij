@@ -22,12 +22,12 @@ import javax.swing.JTextArea
  * Issue: cb-ble.4
  */
 class ChatPanel(private val project: Project) : JPanel(), StreamingEventRouter.EventListener, Disposable {
-
-    private val displayArea = JTextArea().apply {
-        isEditable = false
-        lineWrap = true
-        wrapStyleWord = true
-    }
+    private val displayArea =
+        JTextArea().apply {
+            isEditable = false
+            lineWrap = true
+            wrapStyleWord = true
+        }
     private val scrollPane = JScrollPane(displayArea)
 
     val cancelButton = JButton("Cancel").apply { isVisible = false }
@@ -37,11 +37,15 @@ class ChatPanel(private val project: Project) : JPanel(), StreamingEventRouter.E
 
     var isLoading: Boolean
         get() = internalLoading
-        set(value) { internalLoading = value }
+        set(value) {
+            internalLoading = value
+        }
 
     var isInputEnabled: Boolean
         get() = internalInputEnabled
-        set(value) { internalInputEnabled = value }
+        set(value) {
+            internalInputEnabled = value
+        }
 
     init {
         layout = BorderLayout()

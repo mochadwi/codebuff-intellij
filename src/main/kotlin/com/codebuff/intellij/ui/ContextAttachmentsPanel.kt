@@ -36,24 +36,27 @@ class ContextAttachmentsPanel : BorderLayoutPanel() {
         }
 
         // Header panel
-        val headerPanel = JBPanel<BorderLayoutPanel>().apply {
-            layout = BoxLayout(this, BoxLayout.X_AXIS)
-            border = EmptyBorder(0, 0, 4, 0)
-        }
+        val headerPanel =
+            JBPanel<BorderLayoutPanel>().apply {
+                layout = BoxLayout(this, BoxLayout.X_AXIS)
+                border = EmptyBorder(0, 0, 4, 0)
+            }
         headerPanel.add(JLabel("Context Attachments"))
         headerPanel.add(javax.swing.Box.createHorizontalGlue())
         headerPanel.add(countLabel)
 
         // Scroll pane for list
-        val scrollPane = JScrollPane(list).apply {
-            preferredSize = JBUI.size(400, 200)
-        }
+        val scrollPane =
+            JScrollPane(list).apply {
+                preferredSize = JBUI.size(400, 200)
+            }
 
         // Button panel
-        val buttonPanel = JBPanel<BorderLayoutPanel>().apply {
-            layout = BoxLayout(this, BoxLayout.X_AXIS)
-            border = EmptyBorder(4, 0, 0, 0)
-        }
+        val buttonPanel =
+            JBPanel<BorderLayoutPanel>().apply {
+                layout = BoxLayout(this, BoxLayout.X_AXIS)
+                border = EmptyBorder(4, 0, 0, 0)
+            }
         val removeBtn = JButton("Remove")
         removeBtn.addActionListener { removeSelected() }
         val clearBtn = JButton("Clear All")
@@ -98,22 +101,31 @@ class ContextAttachmentsPanel : BorderLayoutPanel() {
         updateCount()
     }
 
-    fun getAttachments(): List<ContextItem> = attachments.toList()
+    fun getAttachments(): List<ContextItem> {
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        return attachments.toList()
+    }
 
-    fun getAttachmentCount(): Int = attachments.size
+    fun getAttachmentCount(): Int {
+        ApplicationManager.getApplication().assertIsDispatchThread()
+        return attachments.size
+    }
 
     fun getDisplayText(index: Int): String {
+        ApplicationManager.getApplication().assertIsDispatchThread()
         if (index !in attachments.indices) return ""
         return formatAttachmentText(attachments[index])
     }
 
     fun formatFileSize(bytes: Long): String {
         return when {
-            bytes < 1024 -> "$bytes bytes"
+            bytes < 1024 -> "$bytes B"
             bytes < 1024 * 1024 -> "${bytes / 1024} KB"
             else -> "${bytes / (1024 * 1024)} MB"
         }
     }
+
+    private fun byteSizeUtf8(s: String): Long = s.toByteArray(Charsets.UTF_8).size.toLong()
 
     private fun updateCount() {
         val count = attachments.size
@@ -123,9 +135,9 @@ class ContextAttachmentsPanel : BorderLayoutPanel() {
     private fun formatAttachmentText(item: ContextItem): String {
         return when (item) {
             is ContextItem.Selection -> "${item.path}:${item.startLine}-${item.endLine}"
-            is ContextItem.File -> "${item.path} (${formatFileSize(item.content.length.toLong())})"
+            is ContextItem.File -> "${item.path} (${formatFileSize(byteSizeUtf8(item.content))})"
             is ContextItem.Diagnostic -> "${item.path}:${item.line} [${item.severity}] ${item.message}"
-            is ContextItem.GitDiff -> "Git Diff (${item.diff.length} bytes)"
+            is ContextItem.GitDiff -> "Git Diff (${formatFileSize(byteSizeUtf8(item.diff))})"
         }
     }
 
@@ -167,7 +179,7 @@ class ContextAttachmentsPanel : BorderLayoutPanel() {
             value: ContextItem,
             index: Int,
             isSelected: Boolean,
-            cellHasFocus: Boolean
+            cellHasFocus: Boolean,
         ): java.awt.Component {
             val label = JLabel(formatAttachmentText(value))
             label.isOpaque = true

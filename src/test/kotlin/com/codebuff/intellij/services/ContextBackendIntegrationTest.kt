@@ -1,7 +1,8 @@
 package com.codebuff.intellij.services
 
-import com.codebuff.intellij.model.ContextItem
 import com.codebuff.intellij.backend.SendMessageRequest
+import com.codebuff.intellij.model.ContextItem
+import com.codebuff.intellij.model.toProtocolMap
 import com.google.gson.Gson
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,23 +15,24 @@ import kotlin.test.assertTrue
  * RED Phase: All tests should fail initially
  */
 class ContextBackendIntegrationTest {
-
     private val gson = Gson()
 
     // ============ Request Serialization Tests ============
 
     @Test
     fun `SendMessageRequest includes context array`() {
-        val context = listOf(
-            ContextItem.File("main.kt", "fun main() {}", "kotlin")
-        )
-        
-        val request = SendMessageRequest(
-            id = "req-001",
-            sessionId = "sess-123",
-            text = "Review this code",
-            context = context.map { it.toProtocolMap() }
-        )
+        val context =
+            listOf(
+                ContextItem.File("main.kt", "fun main() {}", "kotlin"),
+            )
+
+        val request =
+            SendMessageRequest(
+                id = "req-001",
+                sessionId = "sess-123",
+                text = "Review this code",
+                context = context.map { it.toProtocolMap() },
+            )
 
         val json = gson.toJson(request)
         assertTrue(json.contains("\"context\""))
@@ -39,12 +41,13 @@ class ContextBackendIntegrationTest {
 
     @Test
     fun `SendMessageRequest with empty context`() {
-        val request = SendMessageRequest(
-            id = "req-001",
-            sessionId = "sess-123",
-            text = "No context",
-            context = emptyList()
-        )
+        val request =
+            SendMessageRequest(
+                id = "req-001",
+                sessionId = "sess-123",
+                text = "No context",
+                context = emptyList(),
+            )
 
         val json = gson.toJson(request)
         assertTrue(json.contains("\"context\":[]"))
@@ -52,19 +55,21 @@ class ContextBackendIntegrationTest {
 
     @Test
     fun `SendMessageRequest with multiple context items`() {
-        val context = listOf(
-            ContextItem.Selection("app.kt", "fun init()", 10, 15, "kotlin"),
-            ContextItem.File("config.kt", "val config = Config()", "kotlin"),
-            ContextItem.Diagnostic("app.kt", 12, "warning", "Unused parameter"),
-            ContextItem.GitDiff("--- a/app.kt\n+++ b/app.kt")
-        )
+        val context =
+            listOf(
+                ContextItem.Selection("app.kt", "fun init()", 10, 15, "kotlin"),
+                ContextItem.File("config.kt", "val config = Config()", "kotlin"),
+                ContextItem.Diagnostic("app.kt", 12, "warning", "Unused parameter"),
+                ContextItem.GitDiff("--- a/app.kt\n+++ b/app.kt"),
+            )
 
-        val request = SendMessageRequest(
-            id = "req-002",
-            sessionId = "sess-123",
-            text = "Fix issues",
-            context = context.map { it.toProtocolMap() }
-        )
+        val request =
+            SendMessageRequest(
+                id = "req-002",
+                sessionId = "sess-123",
+                text = "Fix issues",
+                context = context.map { it.toProtocolMap() },
+            )
 
         val json = gson.toJson(request)
         assertEquals(4, request.context.size)
@@ -74,13 +79,14 @@ class ContextBackendIntegrationTest {
 
     @Test
     fun `Selection serializes to Map with all fields`() {
-        val selection = ContextItem.Selection(
-            path = "src/Main.kt",
-            content = "fun test() {}",
-            startLine = 5,
-            endLine = 7,
-            language = "kotlin"
-        )
+        val selection =
+            ContextItem.Selection(
+                path = "src/Main.kt",
+                content = "fun test() {}",
+                startLine = 5,
+                endLine = 7,
+                language = "kotlin",
+            )
 
         val map = selection.toProtocolMap()
 
@@ -94,11 +100,12 @@ class ContextBackendIntegrationTest {
 
     @Test
     fun `File serializes to Map with all fields`() {
-        val file = ContextItem.File(
-            path = "helpers/Utils.kt",
-            content = "object Utils { }",
-            language = "kotlin"
-        )
+        val file =
+            ContextItem.File(
+                path = "helpers/Utils.kt",
+                content = "object Utils { }",
+                language = "kotlin",
+            )
 
         val map = file.toProtocolMap()
 
@@ -110,12 +117,13 @@ class ContextBackendIntegrationTest {
 
     @Test
     fun `Diagnostic serializes to Map with all fields`() {
-        val diag = ContextItem.Diagnostic(
-            path = "app.kt",
-            line = 42,
-            severity = "error",
-            message = "Type mismatch: expected Int"
-        )
+        val diag =
+            ContextItem.Diagnostic(
+                path = "app.kt",
+                line = 42,
+                severity = "error",
+                message = "Type mismatch: expected Int",
+            )
 
         val map = diag.toProtocolMap()
 
@@ -128,9 +136,10 @@ class ContextBackendIntegrationTest {
 
     @Test
     fun `GitDiff serializes to Map`() {
-        val diff = ContextItem.GitDiff(
-            diff = "--- a/file.kt\n+++ b/file.kt\n@@ -1,2 +1,3 @@"
-        )
+        val diff =
+            ContextItem.GitDiff(
+                diff = "--- a/file.kt\n+++ b/file.kt\n@@ -1,2 +1,3 @@",
+            )
 
         val map = diff.toProtocolMap()
 
@@ -189,12 +198,13 @@ class ContextBackendIntegrationTest {
             items.add(ContextItem.File("file$i.kt", "content$i", "kotlin"))
         }
 
-        val request = SendMessageRequest(
-            id = "req-many",
-            sessionId = "sess",
-            text = "Process many files",
-            context = items.map { it.toProtocolMap() }
-        )
+        val request =
+            SendMessageRequest(
+                id = "req-many",
+                sessionId = "sess",
+                text = "Process many files",
+                context = items.map { it.toProtocolMap() },
+            )
 
         assertEquals(50, request.context.size)
     }
@@ -203,9 +213,10 @@ class ContextBackendIntegrationTest {
 
     @Test
     fun `context list can be cleared after send`() {
-        var context = listOf(
-            ContextItem.File("f.kt", "code", "kotlin")
-        ).map { it.toProtocolMap() }
+        var context =
+            listOf(
+                ContextItem.File("f.kt", "code", "kotlin"),
+            ).map { it.toProtocolMap() }
 
         assertEquals(1, context.size)
 
@@ -216,52 +227,20 @@ class ContextBackendIntegrationTest {
 
     @Test
     fun `new request has fresh context`() {
-        val oldContext = listOf(
-            ContextItem.File("old.kt", "old code", "kotlin")
-        ).map { it.toProtocolMap() }
+        val oldContext =
+            listOf(
+                ContextItem.File("old.kt", "old code", "kotlin"),
+            ).map { it.toProtocolMap() }
 
-        val newContext = listOf(
-            ContextItem.File("new.kt", "new code", "kotlin")
-        ).map { it.toProtocolMap() }
+        val newContext =
+            listOf(
+                ContextItem.File("new.kt", "new code", "kotlin"),
+            ).map { it.toProtocolMap() }
 
         assertEquals(1, oldContext.size)
         assertEquals(1, newContext.size)
         assertNotNull(oldContext[0]["path"])
         assertEquals("old.kt", oldContext[0]["path"])
         assertEquals("new.kt", newContext[0]["path"])
-    }
-
-    /**
-     * Extension function to convert ContextItem to Map<String, Any>
-     * This is what the actual implementation will use
-     */
-    private fun ContextItem.toProtocolMap(): Map<String, Any> {
-        return when (this) {
-            is ContextItem.Selection -> mapOf(
-                "type" to "selection",
-                "path" to path,
-                "content" to content,
-                "startLine" to startLine,
-                "endLine" to endLine,
-                "language" to language
-            )
-            is ContextItem.File -> mapOf(
-                "type" to "file",
-                "path" to path,
-                "content" to content,
-                "language" to language
-            )
-            is ContextItem.Diagnostic -> mapOf(
-                "type" to "diagnostic",
-                "path" to path,
-                "line" to line,
-                "severity" to severity,
-                "message" to message
-            )
-            is ContextItem.GitDiff -> mapOf(
-                "type" to "diff",
-                "diff" to diff
-            )
-        }
     }
 }
