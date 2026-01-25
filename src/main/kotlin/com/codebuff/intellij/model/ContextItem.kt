@@ -1,0 +1,43 @@
+package com.codebuff.intellij.model
+
+/**
+ * Sealed class representing different types of context items that can be attached to messages
+ */
+sealed class ContextItem {
+    /**
+     * Selected text from editor with location information
+     */
+    data class Selection(
+        val path: String,           // File path relative to project
+        val content: String,        // Selected text
+        val startLine: Int,         // Start line number (1-indexed)
+        val endLine: Int,           // End line number (1-indexed)
+        val language: String        // Programming language (e.g., "kotlin", "java")
+    ) : ContextItem()
+
+    /**
+     * Entire file content
+     */
+    data class File(
+        val path: String,           // File path relative to project
+        val content: String,        // Full file content
+        val language: String        // Programming language
+    ) : ContextItem()
+
+    /**
+     * Diagnostic/inspection issue from IntelliJ
+     */
+    data class Diagnostic(
+        val path: String,           // File path relative to project
+        val line: Int,              // Line number (1-indexed)
+        val severity: String,       // "error", "warning", "info"
+        val message: String         // Diagnostic message
+    ) : ContextItem()
+
+    /**
+     * Git diff for uncommitted changes
+     */
+    data class GitDiff(
+        val diff: String            // Unified diff format
+    ) : ContextItem()
+}
