@@ -15,6 +15,7 @@
 
         <projectService serviceImplementation="com.codebuff.intellij.services.CodebuffProjectService"/>
         <projectService serviceImplementation="com.codebuff.intellij.services.SessionManager"/>
+        <projectService serviceImplementation="com.codebuff.intellij.diff.DiffViewerService"/>
 
         <applicationConfigurable
                 parentId="tools"
