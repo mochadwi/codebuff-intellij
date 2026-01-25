@@ -1,6 +1,7 @@
 package com.codebuff.intellij.services
 
 import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.project.Project
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ class SessionPersistenceTest {
 
     @BeforeEach
     fun setUp() {
-        val mockProject = mockk(relaxed = true)
+        val mockProject: Project = mockk(relaxed = true)
         sessionManager = SessionManager(mockProject)
     }
 
@@ -36,12 +37,10 @@ class SessionPersistenceTest {
 
     @Test
     fun `loadState restores sessions`() {
+        val sessionInfo = SessionManager.SessionInfo("id-1", "Session 1", 1000L, 2000L)
         val savedState =
             SessionManager.State(
-                sessions =
-                    mutableListOf(
-                        SessionManager.SessionInfo("id-1", "Session 1", 1000L, 2000L),
-                    ),
+                sessions = mutableMapOf("id-1" to sessionInfo),
                 activeSessionId = "id-1",
             )
 
