@@ -376,6 +376,84 @@ PRs use `.github/PULL_REQUEST_TEMPLATE.md` with:
 - Testing checklist
 - Related issues linking
 
+### PR Title & Description Guidelines
+
+**MANDATORY:** All PRs must have proper titles and descriptions.
+
+**PR Title Format:**
+```
+<type>: <short description>
+```
+
+**Types:**
+- `feat` - New feature
+- `fix` - Bug fix
+- `docs` - Documentation only
+- `style` - Code style/formatting (no logic change)
+- `refactor` - Code refactoring (no feature change)
+- `test` - Adding/updating tests
+- `chore` - Build, CI, dependencies, tooling
+- `perf` - Performance improvement
+
+**Examples:**
+```
+feat: Add streaming response display in chat panel
+fix: Resolve connection timeout on large files
+refactor: Extract protocol parsing into separate module
+chore: Add GitHub Actions PR verification workflow
+```
+
+**PR Description Must Include:**
+1. **Summary** - What this PR does (1-2 sentences)
+2. **Changes** - Bullet list of specific changes
+3. **Testing** - How the changes were verified
+4. **Related Issues** - Link to Beads tasks or GitHub issues
+
+### GitHub Access via MCP
+
+**Use MCP (Model Context Protocol) for GitHub operations:**
+
+The project uses MCP with the `github` server for programmatic GitHub access. This enables:
+- Creating and managing PRs
+- Checking workflow status
+- Merging PRs
+- Managing branches and issues
+
+**MCP GitHub Server Setup:**
+```json
+// In your MCP configuration
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<your-token>"
+      }
+    }
+  }
+}
+```
+
+**Common MCP GitHub Operations:**
+```
+# Create PR
+mcp github create_pull_request --repo mochadwi/codebuff-intellij --title "feat: ..." --body "..." --head <branch> --base main
+
+# List PRs
+mcp github list_pull_requests --repo mochadwi/codebuff-intellij --state open
+
+# Merge PR
+mcp github merge_pull_request --repo mochadwi/codebuff-intellij --pull_number <num>
+
+# Check workflow runs
+mcp github list_workflow_runs --repo mochadwi/codebuff-intellij --branch <branch>
+```
+
+**When to Use MCP vs CLI:**
+- Use MCP for: Creating PRs, merging, checking CI status, managing issues
+- Use git CLI for: Commits, pushes, rebases, local branch management
+
 ## Resources
 
 - [IntelliJ Platform SDK Docs](https://plugins.jetbrains.com/docs/intellij/)
