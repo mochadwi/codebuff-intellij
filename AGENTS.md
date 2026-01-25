@@ -185,14 +185,21 @@ git branch -d <task-id>  # Delete feature branch after merge
 - Delete feature branch after successful merge
 - Never commit directly to main
 
-### Git Worktree Strategy (Optional for Epics)
+### Git Worktree Strategy (for Epics)
 
-For parallel development of multiple epics, use git worktrees:
+For epic development, use git worktrees to work on multiple epics in parallel:
 
 ```bash
-# Create worktree for an epic
+# 1. Start from main branch, pull latest
+cd /path/to/codebuff-intellij
+git pull --rebase origin main
+
+# 2. Create worktree for epic (from main repo, not worktree)
 git worktree add ../worktrees/<epic-id> -b <epic-id>
-# Example: git worktree add ../worktrees/cb-vnl -b cb-vnl
+# Example: git worktree add ../worktrees/cb-0jl -b cb-0jl
+
+# 3. Enter worktree and start work
+cd ../worktrees/<epic-id>
 
 # List all worktrees
 git worktree list
@@ -202,10 +209,77 @@ git worktree remove ../worktrees/<epic-id>
 ```
 
 **Worktree Rules:**
-- Naming convention: `../worktrees/<epic-id>` (e.g., `../worktrees/cb-vnl`)
+- Naming convention: `../worktrees/<epic-id>` (e.g., `../worktrees/cb-0jl`)
 - Branch name matches epic ID
 - One worktree per epic, never share worktrees between epics
-- Clean up worktrees after merge to main
+- Always pull main before creating worktree
+- Clean up worktrees only AFTER merge to main
+
+### Epic Development Workflow
+
+**Complete workflow from start to finish:**
+
+```bash
+# 1. PULL FROM MAIN (required first step)
+cd /path/to/codebuff-intellij
+git pull --rebase origin main
+
+# 2. CREATE WORKTREE FOR EPIC
+git worktree add ../worktrees/<epic-id> -b <epic-id>
+cd ../worktrees/<epic-id>
+
+# 3. WORK ON TASKS (inside worktree)
+# For each task:
+#   - Write failing tests (TDD: RED)
+#   - Confirm test fails
+#   - Implement minimal code (GREEN)
+#   - Confirm test passes
+#   - Refactor while keeping tests green
+#   - COMMIT with task ID message
+#   - Move to next task
+
+# 4. COMMIT EACH COMPLETED TASK
+git add -A
+git commit -m "[<task-id>] <description>
+
+- What was implemented
+- What tests were added"
+
+# Example:
+git commit -m "[cb-0jl.6] Write tests for ContextCollector service
+
+- Added ContextCollectorTest with selection/file/diagnostics tests
+- Covered line number tracking and language detection
+- All tests fail as expected (RED phase)"
+
+# 5. AFTER ALL TASKS COMPLETE
+docker compose run --rm gradle test    # Verify all tests pass
+docker compose run --rm gradle check   # Run quality gates
+docker compose run --rm gradle buildPlugin  # Build plugin
+
+# 6. IF ANY STEP FAILS: fix issues and repeat until green
+
+# 7. PUSH EPIC TO REMOTE
+git push origin <epic-id>
+
+# 8. MERGE VIA PR (in GitHub/main repo)
+# After PR is merged to main:
+
+# 9. CLEAN UP WORKTREE
+git worktree list                      # Check active worktrees
+git worktree remove ../worktrees/<epic-id>  # Remove worktree
+cd /path/to/codebuff-intellij/main
+git branch -d <epic-id>                # Delete local branch (if needed)
+git pull --rebase origin main          # Sync main with remote
+```
+
+**Key Rules:**
+- ALWAYS pull main before creating worktree
+- Commit AFTER each task completes (not at the end of epic)
+- Each commit MUST include task ID and test description
+- Tests MUST pass before committing
+- Push only after ALL tasks are complete AND tests green
+- Clean up worktree only AFTER merge to main
 
 ## Development Workflow
 
