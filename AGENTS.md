@@ -141,6 +141,34 @@ All services are **Project-level** (`@Service(Service.Level.PROJECT)`):
 
 ## Git Workflow
 
+### Commit Author Configuration
+
+**All commits MUST be authored by:**
+```
+Name: mochadwi
+Email: moch.iqbaldc@gmail.com
+```
+
+**Setup (one-time):**
+```bash
+git config user.name "mochadwi"
+git config user.email "moch.iqbaldc@gmail.com"
+```
+
+**IMPORTANT RULES:**
+- Never use co-authored-by lines in commit messages
+- All commits must have single author: mochadwi
+- Use `git filter-branch` to fix author if needed:
+  ```bash
+  git filter-branch --env-filter '
+  export GIT_COMMITTER_NAME="mochadwi"
+  export GIT_COMMITTER_EMAIL="moch.iqbaldc@gmail.com"
+  export GIT_AUTHOR_NAME="mochadwi"
+  export GIT_AUTHOR_EMAIL="moch.iqbaldc@gmail.com"
+  ' --msg-filter 'sed "/^Co-authored-by:/d"' <base-commit>..HEAD
+  ```
+- Force push after author/message changes: `git push -f origin <branch>`
+
 ### Git Hooks (Pre-commit)
 
 The project uses tracked Git hooks in `.githooks/` directory for code quality enforcement.
