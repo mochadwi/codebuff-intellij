@@ -141,6 +141,34 @@ All services are **Project-level** (`@Service(Service.Level.PROJECT)`):
 
 ## Git Workflow
 
+### Commit Author Configuration
+
+**All commits MUST be authored by:**
+```
+Name: mochadwi
+Email: moch.iqbaldc@gmail.com
+```
+
+**Setup (one-time):**
+```bash
+git config user.name "mochadwi"
+git config user.email "moch.iqbaldc@gmail.com"
+```
+
+**IMPORTANT RULES:**
+- Never use co-authored-by lines in commit messages
+- All commits must have single author: mochadwi
+- Use `git filter-branch` to fix author if needed:
+  ```bash
+  git filter-branch --env-filter '
+  export GIT_COMMITTER_NAME="mochadwi"
+  export GIT_COMMITTER_EMAIL="moch.iqbaldc@gmail.com"
+  export GIT_AUTHOR_NAME="mochadwi"
+  export GIT_AUTHOR_EMAIL="moch.iqbaldc@gmail.com"
+  ' --msg-filter 'sed "/^Co-authored-by:/d"' <base-commit>..HEAD
+  ```
+- Force push after author/message changes: `git push -f origin <branch>`
+
 ### Git Hooks (Pre-commit)
 
 The project uses tracked Git hooks in `.githooks/` directory for code quality enforcement.
@@ -527,6 +555,55 @@ mcp github list_workflow_runs --repo mochadwi/codebuff-intellij --branch <branch
 **When to Use MCP vs CLI:**
 - Use MCP for: Creating PRs, merging, checking CI status, managing issues
 - Use git CLI for: Commits, pushes, rebases, local branch management
+
+## Global Agents Configuration
+
+To share agent definitions across all Codebuff projects on your machine, you can place them in a global `.agents` directory in your home folder.
+
+- **Project-local agents**: Loaded from a `.agents/` directory in the current project root (for example, `/path/to/project/.agents`).
+- **Global agents**: Loaded from `~/.agents/`.
+- **Precedence**: If both exist, project-local `.agents/` takes precedence over `~/.agents/` for agents with the same name.
+
+### Steps to create a global agent
+
+1. Create the global agents directory if it does not exist:
+   ```bash
+   mkdir -p ~/.agents
+   ```
+2. Copy any agent definition file from a project into `~/.agents/`.
+3. Restart (or reload) Codebuff so it picks up the new global agent definitions.
+
+### Example: utcp-gateway-agent.ts
+
+Given a project-local agent at `.agents/utcp-gateway-agent.ts`:
+
+```ts
+import type { AgentDefinition } from './types/agent-definition.js';
+
+export default {
+  name: 'utcp-gateway-agent',
+  mcpServers: {
+    'utcp-gateway': {
+      type: 'stdio',
+      command: 'bash',
+      args: ['/Users/mochadwi/.config/codemode/codemode_wrapper.sh'],
+    },
+  },
+} satisfies AgentDefinition;
+```
+
+You can make it available globally by copying it:
+
+```bash
+mkdir -p ~/.agents
+cp .agents/utcp-gateway-agent.ts ~/.agents/
+```
+
+After copying, you can remove the project-local `.agents/` directory if you only want to rely on the global definition. If you keep both, the project-local version will override the global one.
+
+For more details on MCP servers and agent configuration, see the Codebuff docs:
+- https://www.codebuff.com/docs/agents/mcp-servers
+- https://www.codebuff.com/docs/agents
 
 ## Resources
 
