@@ -10,6 +10,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
@@ -184,8 +185,9 @@ class CliBackendClient(
     private fun startWatchdog() {
         scope.launch {
             try {
-                while (isConnectedFlag) {
+                while (isActive) {
                     delay(1000)
+                    if (!isConnectedFlag) break
                     if (process?.isAlive == false) {
                         isConnectedFlag = false
                         attemptReconnect()
@@ -193,7 +195,6 @@ class CliBackendClient(
                 }
             } catch (e: CancellationException) {
                 // Expected during shutdown
-                throw e
             } catch (e: Exception) {
                 log.error("Watchdog error", e)
             }
