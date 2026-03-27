@@ -98,11 +98,13 @@ object Protocol {
                 if (obj.has("files")) {
                     obj.get("files").asJsonArray.forEach { fileEl ->
                         val fileObj = fileEl.asJsonObject
+                        val before = if (fileObj.has("before")) fileObj.get("before").asString else ""
+                        val after = if (fileObj.has("after")) fileObj.get("after").asString else ""
                         files.add(
                             mapOf(
                                 "path" to fileObj.get("path").asString,
-                                "before" to fileObj.get("before").asString,
-                                "after" to fileObj.get("after").asString,
+                                "before" to before,
+                                "after" to after,
                             ),
                         )
                     }
